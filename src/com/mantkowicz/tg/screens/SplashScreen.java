@@ -38,15 +38,15 @@ public class SplashScreen extends BaseScreen implements HttpResponseListener
 		this.label.getColor().a = 0;
 		this.setCenter(this.label, -150);
 		
-		this.nextScreen = new GameScreen( this.game );
-		//this.nextScreen = new MenuScreen( this.game );
+		//this.nextScreen = new GameScreen( this.game );
+		this.nextScreen = new MenuScreen( this.game );
 		this.stage.addListener(this.nextScreenListener);
 		
 		this.stage.addActor(this.splashImage);
 		this.stage.addActor(this.label);
 		
 		hr = new HttpRequest();
-		hr.setUrl("http://www.mantkowicz.pl/tp/font.ttf");
+		hr.setUrl("http://www.mantkowicz.pl/tp/ws.php?action=getJobs&ignore_counter=1");
 		hr.setMethod(Net.HttpMethods.GET);
 		hr.setContent("");
 		Gdx.net.sendHttpRequest(hr, this);
@@ -73,7 +73,7 @@ public class SplashScreen extends BaseScreen implements HttpResponseListener
 
 		final int statusCode = httpResponse.getStatus().getStatusCode();
 		
-		FileHandle fh = Gdx.files.local("font.ttf");
+		FileHandle fh = Gdx.files.local("files/jobs.json");
 		
 		byte[] fileBytes = httpResponse.getResult();
 		
