@@ -129,7 +129,7 @@ public class GameScreen extends BaseScreen
 		
 		BitmapFont font = new BitmapFont(Gdx.files.internal("fonts/big.fnt"), this.getAtlasRegion("big") );
 		
-		paragraph = new Paragraph("tutaj jest jedna linia \n tutaj kolejna \n a ta trzecia i ostatnia \n i czwarta na dok³adkê", font);
+		paragraph = new Paragraph("tutaj jest jedna linia\n tutaj kolejna\n a ta trzecia i ostatnia\n i czwarta na dok³adkê", font);
 		
 		this.stage.addActor(paragraph);
 		

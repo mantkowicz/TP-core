@@ -1,6 +1,7 @@
 package com.mantkowicz.tg.actors;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.mantkowicz.tg.logger.Logger;
@@ -33,17 +34,13 @@ public class Line
 				
 				float x = -600;
 				
+				GlyphLayout layout = new GlyphLayout();
+				
 				for(int i = 0; i < sentences.size; i++)
-				{					
-					FloatArray advance = new FloatArray();
-					FloatArray position = new FloatArray();
+				{		
+					layout.setText(font, sentences.get(i).text);
 					
-					font.computeGlyphAdvancesAndPositions(sentences.get(i).text + " ", advance, position);
-					
-					for(float f : advance.items)
-					{
-						x += f;
-					}
+					x += layout.width;
 				}
 				Logger.log(this, "SENTENCE " + sentence + " P : " + x);
 				sentences.add( new Sentence(this, sentence, font, x) );

@@ -1,6 +1,7 @@
 package com.mantkowicz.tg.actors;
 
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -30,6 +31,8 @@ public class Sentence extends Actor
 		
 		this.setPosition(x, this.line.y);
 		
+		GlyphLayout layout = new GlyphLayout();
+		
 		for(String character : text.split(""))
 		{
 			if(character != null && character.length() > 0)
@@ -42,12 +45,9 @@ public class Sentence extends Actor
 				
 				characters.add( c ); 
 				
-				FloatArray advance = new FloatArray();
-				FloatArray position = new FloatArray();
-				
-				font.computeGlyphAdvancesAndPositions(character, advance, position);
-				
-				x += advance.first();
+				layout.setText(font, character);
+								
+				x += layout.width;
 			}
 		}
 		

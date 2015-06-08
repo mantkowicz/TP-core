@@ -8,7 +8,13 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
+import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -154,6 +160,38 @@ public abstract class BaseScreen implements Screen
 		}
 		
 		return null;
+	}
+	
+	protected RepeatAction getBlinkAction(float maxAlpha, float minAlpha, float duration)
+	{
+		AlphaAction showAction = new AlphaAction();
+		showAction.setAlpha(maxAlpha);
+		showAction.setDuration(duration);
+		
+		AlphaAction hideAction = new AlphaAction();
+		hideAction.setAlpha(minAlpha);
+		hideAction.setDuration(duration);
+		
+		return Actions.forever( new SequenceAction(hideAction, showAction) );
+	}
+	
+	protected ScrollPane createScroll(Table table, float width, float height, boolean vertical)
+	{
+		final ScrollPane scroller = new ScrollPane(table, game.skin);
+		
+		if(vertical)
+		{
+			scroller.setScrollingDisabled(true, false);
+		}
+		else
+		{
+			scroller.setScrollingDisabled(false, true);
+		}
+		
+        scroller.setFadeScrollBars(false);
+        scroller.setSize(width, height);
+        
+        return scroller;
 	}
 	
 	protected void setCenter(Actor actor, float y)
