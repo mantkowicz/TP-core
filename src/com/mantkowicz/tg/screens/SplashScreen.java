@@ -14,7 +14,8 @@ import com.mantkowicz.tg.enums.ScreenPhase;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.ActionManager;
 import com.mantkowicz.tg.managers.HttpManager;
-import com.mantkowicz.tg.screens.MenuScreen.Result;
+import com.mantkowicz.tg.network.Result;
+
 
 public class SplashScreen extends BaseScreen
 {
@@ -90,6 +91,7 @@ public class SplashScreen extends BaseScreen
 				phase = ScreenPhase.DOWNLOADING_FONTS;
 			}
 		}
+
 		else if(phase == ScreenPhase.DOWNLOADING_FONTS)
 		{
 			label.setText("Downloading font files");
@@ -131,5 +133,7 @@ public class SplashScreen extends BaseScreen
 				}
 			}
 		}
+
 	}
+
 }

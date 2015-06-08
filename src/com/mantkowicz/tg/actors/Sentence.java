@@ -6,7 +6,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.FloatArray;
 import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.managers.CameraManager;
 
@@ -31,7 +30,7 @@ public class Sentence extends Actor
 		
 		this.setPosition(x, this.line.y);
 		
-		GlyphLayout layout = new GlyphLayout();
+		GlyphLayout glyphLayout = new GlyphLayout();
 		
 		for(String character : text.split(""))
 		{
@@ -45,9 +44,9 @@ public class Sentence extends Actor
 				
 				characters.add( c ); 
 				
-				layout.setText(font, character);
-								
-				x += layout.width;
+				glyphLayout.setText(font, character);
+				
+				x += glyphLayout.width;
 			}
 		}
 		
