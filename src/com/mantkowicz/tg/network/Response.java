@@ -1,6 +1,6 @@
 package com.mantkowicz.tg.network;
 
-public class Result 
+public class Response 
 {
 	public int status;
 	public String value;

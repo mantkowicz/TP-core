@@ -10,7 +10,7 @@ import com.mantkowicz.tg.enums.HttpState;
 public class HttpManager implements HttpResponseListener 
 {	
 	public HttpState state;
-	private byte[] result;
+	private String result;
 	
 	HttpRequest request;
 	
@@ -33,8 +33,8 @@ public class HttpManager implements HttpResponseListener
 		
 		state = HttpState.DOWNLOADING;
 	}
-	
-	public byte[] getResult()
+		
+	public String getResponse()
 	{
 		state = HttpState.IDLE;
 				
@@ -52,7 +52,7 @@ public class HttpManager implements HttpResponseListener
 		{
 			state = HttpState.FINISHED;
 			
-			result = httpResponse.getResult();
+			result = httpResponse.getResultAsString();
 		}	
 	}
 

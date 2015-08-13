@@ -3,6 +3,8 @@ package com.mantkowicz.tg.enums;
 public enum ScreenPhase 
 {
 	DOWNLOADING_JOBS,
+	DOWNLOADING_USERS_LIST,
+	DOWNLOADING_FONTS_LIST,
 	DOWNLOADING_FONTS,
 	DOWNLOADING_USERS,
 	FINISHED

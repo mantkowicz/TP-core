@@ -28,4 +28,18 @@ public class Main extends Game
 		
 		this.setScreen( splash );
 	}
+	
+	@Override
+	public void render() 
+	{
+		try
+		{
+			super.render();
+		}
+		catch(Exception e)
+		{ 
+			e.printStackTrace();
+			Gdx.app.exit();
+		}
+	}
 }

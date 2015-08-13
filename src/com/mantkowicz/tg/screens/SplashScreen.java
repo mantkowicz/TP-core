@@ -11,10 +11,14 @@ import com.badlogic.gdx.utils.Json;
 import com.mantkowicz.tg.enums.ActionType;
 import com.mantkowicz.tg.enums.HttpState;
 import com.mantkowicz.tg.enums.ScreenPhase;
+import com.mantkowicz.tg.json.Font;
+import com.mantkowicz.tg.json.User;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.ActionManager;
 import com.mantkowicz.tg.managers.HttpManager;
-import com.mantkowicz.tg.network.Result;
+import com.mantkowicz.tg.network.FontResult;
+import com.mantkowicz.tg.network.Response;
+import com.mantkowicz.tg.network.UserResult;
 
 
 public class SplashScreen extends BaseScreen
@@ -30,6 +34,8 @@ public class SplashScreen extends BaseScreen
 	
 	private Dict dict;
 	private Array<String> fontsToDownload;
+	
+	private Array<Font> fonts;
 		
 	public SplashScreen(Main game)
 	{
@@ -72,32 +78,63 @@ public class SplashScreen extends BaseScreen
 			if( manager.state == HttpState.FINISHED && !manager.isResultNull() )
 			{
 				FileHandle fh = Gdx.files.local("files/jobs.json");
-				fh.writeBytes(manager.getResult(), false);
+				fh.writeString(manager.getResponse(), false);
+									
+				phase = ScreenPhase.DOWNLOADING_USERS_LIST;
 				
+				manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getUsers");
+			}
+		}
+		
+		if(phase == ScreenPhase.DOWNLOADING_USERS_LIST)
+		{
+			label.setText("Downloading users list");
+			setCenter(label, -150);
+			
+			if( manager.state == HttpState.FINISHED && !manager.isResultNull() )
+			{
 				Json json = new Json();
-				final Result result = json.fromJson(Result.class, Gdx.files.local("files/jobs.json"));
-				dict = json.fromJson(Dict.class, result.message);
+				final Response response = json.fromJson(Response.class, manager.getResponse());
 				
-				for(String fontID : dict.fonts.keySet())
+				UserResult result = json.fromJson(UserResult.class, response.value);
+				
+				Array<User> users = result.value;
+				
+				for(User user : users)
 				{
-					fontsToDownload.add(fontID);
+					preferences.putString(String.valueOf(user.id), user.login);
 				}
 				
-				for(String userID : dict.users.keySet())
-				{
-					preferences.putString(userID, dict.users.get(userID));
-				}
+				phase = ScreenPhase.DOWNLOADING_FONTS_LIST;
+				
+				manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getFonts");
+			}
+		}
+
+		else if(phase == ScreenPhase.DOWNLOADING_FONTS_LIST)
+		{
+			label.setText("Downloading font files list");
+			setCenter(label, -150);
+			
+			if( manager.state == HttpState.FINISHED && !manager.isResultNull() )
+			{
+				Json json = new Json();
+				final Response response = json.fromJson(Response.class, manager.getResponse());				
+				
+				FontResult result = json.fromJson(FontResult.class, response.value);
+				
+				fonts = result.value;
 				
 				phase = ScreenPhase.DOWNLOADING_FONTS;
 			}
 		}
-
+		
 		else if(phase == ScreenPhase.DOWNLOADING_FONTS)
 		{
 			label.setText("Downloading font files");
 			setCenter(label, -150);
 			
-			if(fontsToDownload.size == 0)
+			if(fonts.size == 0)
 			{
 				this.stage.addListener(this.nextScreenListener);
 				
@@ -106,6 +143,33 @@ public class SplashScreen extends BaseScreen
 				
 				phase = ScreenPhase.FINISHED;
 			}
+			else
+			{
+				if( fonts.size > 0 )
+				{
+					if( !Gdx.files.local("files/fonts/" + fonts.peek().id + "/font.ttf").exists() )
+					{
+						if(manager.state == HttpState.IDLE)
+						{
+							fonts.peek().download(manager);
+							
+						}
+						else if( manager.state == HttpState.FINISHED && !manager.isResultNull() )
+						{
+							fonts.pop().save(manager);
+						}
+						else
+						{
+							//pass
+						}
+					}
+					else
+					{
+						fonts.pop();
+					}
+				}
+			}
+			/*
 			else
 			{
 				if(manager.state == HttpState.IDLE)
@@ -132,6 +196,7 @@ public class SplashScreen extends BaseScreen
 					fh.writeBytes(manager.getResult(), false);
 				}
 			}
+			*/
 		}
 
 	}
