@@ -2,7 +2,6 @@ package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
@@ -12,11 +11,14 @@ import com.mantkowicz.tg.enums.ActionType;
 import com.mantkowicz.tg.enums.HttpState;
 import com.mantkowicz.tg.enums.ScreenPhase;
 import com.mantkowicz.tg.json.Font;
+import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.json.User;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.ActionManager;
 import com.mantkowicz.tg.managers.HttpManager;
+import com.mantkowicz.tg.managers.JobHandler;
 import com.mantkowicz.tg.network.FontResult;
+import com.mantkowicz.tg.network.JobResult;
 import com.mantkowicz.tg.network.Response;
 import com.mantkowicz.tg.network.UserResult;
 
@@ -77,9 +79,15 @@ public class SplashScreen extends BaseScreen
 		{
 			if( manager.state == HttpState.FINISHED && !manager.isResultNull() )
 			{
-				FileHandle fh = Gdx.files.local("files/jobs.json");
-				fh.writeString(manager.getResponse(), false);
-									
+				Json json = new Json();
+				final Response response = json.fromJson(Response.class, manager.getResponse());
+								
+				final JobResult result = json.fromJson(JobResult.class, response.value);
+								
+				JobHandler.getInstance().refresh(result.value);
+				
+				JobHandler.getInstance().printJobs();
+				
 				phase = ScreenPhase.DOWNLOADING_USERS_LIST;
 				
 				manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getUsers");
@@ -95,7 +103,7 @@ public class SplashScreen extends BaseScreen
 			{
 				Json json = new Json();
 				final Response response = json.fromJson(Response.class, manager.getResponse());
-				
+
 				UserResult result = json.fromJson(UserResult.class, response.value);
 				
 				Array<User> users = result.value;

@@ -1,4 +1,4 @@
-package com.mantkowicz.tg.network;
+package com.mantkowicz.tg.json;
 
 public class Job 
 {
@@ -8,5 +8,9 @@ public class Job
 	public int points;
 	public String date_start;
 	public String date_end;
-	public String properties;
+	public int font_size;
+	public String content;
+	public int width;
+	public int height;
+	public int padding;
 }
