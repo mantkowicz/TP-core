@@ -6,26 +6,33 @@ import com.badlogic.gdx.Net.HttpRequest;
 import com.badlogic.gdx.Net.HttpResponse;
 import com.badlogic.gdx.Net.HttpResponseListener;
 import com.mantkowicz.tg.enums.HttpState;
+import com.mantkowicz.tg.logger.Logger;
 
 public class HttpManager implements HttpResponseListener 
 {	
 	public HttpState state;
 	private String result;
+	private byte[] byteResult;
 	
 	HttpRequest request;
+	
+	boolean getByte;
 	
 	public HttpManager()
 	{
 		state = HttpState.IDLE;
 		result = null;
+		byteResult = null;
 		
 		request = new HttpRequest();
 		request.setContent("");
 	}
 	
-	public void get(String url)
+	public void g(String url)
 	{
 		result = null;
+		byteResult = null;
+		
 		request.setMethod(Net.HttpMethods.GET);
 		
 		request.setUrl(url);
@@ -33,12 +40,31 @@ public class HttpManager implements HttpResponseListener
 		
 		state = HttpState.DOWNLOADING;
 	}
+	
+	public void get(String url)
+	{
+		getByte = false;
+		g(url);
+	}
+	
+	public void getByte(String url)
+	{
+		getByte = true;
+		g(url);
+	}
 		
 	public String getResponse()
 	{
 		state = HttpState.IDLE;
 				
 		return result;
+	}
+	
+	public byte[] getByteResponse()
+	{
+		state = HttpState.IDLE;
+				
+		return byteResult;
 	}
 	
 	@Override
@@ -52,7 +78,14 @@ public class HttpManager implements HttpResponseListener
 		{
 			state = HttpState.FINISHED;
 			
-			result = httpResponse.getResultAsString();
+			if( !getByte ) 
+			{
+				result = httpResponse.getResultAsString();
+			}
+			else 
+			{
+				byteResult = httpResponse.getResult();
+			}
 		}	
 	}
 
@@ -70,6 +103,6 @@ public class HttpManager implements HttpResponseListener
 
 	public boolean isResultNull() 
 	{
-		return (result == null);
+		return (result == null && byteResult == null);
 	}
 }

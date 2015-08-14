@@ -14,12 +14,12 @@ public class Font
 	
 	public void download(HttpManager manager)
 	{
-		manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getFont&id=" + this.id);
+		manager.getByte("http://www.kerning.mantkowicz.pl/ws.php?action=getFont&id=" + this.id);
 	}
 	
 	public void save(HttpManager manager)
 	{
 		FileHandle fh = Gdx.files.local("files/fonts/" + this.id + "/font.ttf");
-		fh.writeString(manager.getResponse(), false);
+		fh.writeBytes(manager.getByteResponse(), false);
 	}
 }

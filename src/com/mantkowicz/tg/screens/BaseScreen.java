@@ -178,7 +178,7 @@ public abstract class BaseScreen implements Screen
 	protected ScrollPane createScroll(Table table, float width, float height, boolean vertical)
 	{
 		final ScrollPane scroller = new ScrollPane(table, game.skin);
-		
+				
 		if(vertical)
 		{
 			scroller.setScrollingDisabled(true, false);

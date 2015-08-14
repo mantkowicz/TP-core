@@ -27,6 +27,7 @@ public class FontManager
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator( Gdx.files.internal(fontPath) );
 		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
 		
+		parameter.characters = "qwertyuiopasdfghjklzxcvbnmêó¹œ³¿ŸæñQWERTYUIOPASDFGHJKLZXCVBNMÊÓ¥Œ£¯ÆÑ1234567890-=[]\\;\',./!@#$%^&*()_+{}|:\"<>?";
 		parameter.kerning = true;
 		parameter.size = fontSize;
 		parameter.magFilter = TextureFilter.Linear;

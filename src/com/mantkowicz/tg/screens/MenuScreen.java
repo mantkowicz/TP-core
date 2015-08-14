@@ -1,61 +1,25 @@
 package com.mantkowicz.tg.screens;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Net;
-import com.badlogic.gdx.Net.HttpRequest;
-import com.badlogic.gdx.Net.HttpResponse;
-import com.badlogic.gdx.Net.HttpResponseListener;
-import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
-import com.mantkowicz.tg.logger.Logger;
+import com.badlogic.gdx.utils.Align;
+import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
+import com.mantkowicz.tg.managers.FontManager;
 import com.mantkowicz.tg.managers.HttpManager;
+import com.mantkowicz.tg.managers.JobHandler;
 
-public class MenuScreen extends BaseScreen implements HttpResponseListener
+public class MenuScreen extends BaseScreen
 {
-	static class Result
-	{
-		public int status;
-		public String value;
-		public String message;
-	}
-	
-	static class Data 
-	{
-	    public Array<Job> jobs;
-	}
-
-	static class Job
-	{
-		public int id;
-		public int usr_id;
-		public int fnt_id;
-		public int points;
-		public String date_start;
-		public String date_end;
-		public String properties;
-	}
-	
 	HttpManager manager;
-	
-	boolean gotFont = false;
-	
-	int jobId;
-	
-	HttpRequest hr;
-	
-	MenuScreen menuScreen;
-	
 	
 	public MenuScreen(Main game)
 	{
 		super(game);
-		
-		this.menuScreen = this;
 		
 		manager = new HttpManager();
 	}
@@ -63,96 +27,111 @@ public class MenuScreen extends BaseScreen implements HttpResponseListener
 	@Override
 	protected void prepare() 
 	{
-		Json json = new Json();
-		final Result result = json.fromJson(Result.class, Gdx.files.local("files/jobs.json"));
-		final Data data = json.fromJson(Data.class, "{jobs : " + result.value + "}");
-		
-		Label title = new Label("Wybierz zlecenie", game.skin, "medium");
-		setCenter(title, 350);
-		
 		Table table = new Table();
 		table.debug();
-				
-		for(Job job : data.jobs)
+		
+		table.setSize(1200, 0);
+		
+		for(Job job : JobHandler.getInstance().jobs)
 		{
-			table.add( new Label("#" + String.valueOf(job.id), game.skin) ).width(800).height(50).pad(25, 0, 0, 0);
-			table.add( new Label(String.valueOf(job.points), game.skin) ).width(300).height(50).pad(25, 0, 0, 0);
-			table.row();
-			table.add( new Label("#" + String.valueOf(job.id), game.skin) ).width(1100).height(50).pad(25);
+			addJob(table, job, 30);
+			table.row().width(table.getWidth()).pad(50, 0, 50, 0);
+			table.add().width(table.getWidth()).colspan(table.getColumns());
 			table.row();
 		}
 		
-		ScrollPane container = this.createScroll(table, 1200, 700, true);
-		container.setPosition(-container.getWidth()/2f, -container.getHeight()/2f - 60);
+		ScrollPane scrollPane = this.createScroll(table, 1220, 500, true);
+		scrollPane.debug();
 		
-		stage.addActor(container);
-		stage.addActor(title);
-	
-		/*	
-		this.start.addListener(
-				new ClickListener() 
-				  {
-					  public void clicked(InputEvent event, float x, float y)
-				 	  {
-							hr = new HttpRequest();
-							
-							jobId = list.jobs.first().id;
-							
-							hr.setUrl("http://www.mantkowicz.pl/tp/ws.php?action=getJobFontFile&id=" + jobId);
-							hr.setMethod(Net.HttpMethods.GET);
-							hr.setContent("");
-							Gdx.net.sendHttpRequest(hr, menuScreen);
-				 	  }
-				  }
-		)*/	
+		setCenter(scrollPane, -300);
+		
+		this.stage.addActor(scrollPane);
 	}
 
 	@Override
 	protected void step() 
 	{
 	}
-
-	@Override
-	public void handleHttpResponse(HttpResponse httpResponse) {
 	
-		final int statusCode = httpResponse.getStatus().getStatusCode();
+	protected void addJob(Table table, Job job, float rowHeight)
+	{
+		table.add( new Label('#' + String.valueOf(job.id), game.skin, "default") ).width(100).height(rowHeight);
+		table.add().colspan(2).width(800).height(rowHeight);
+		table.add( new Label( JobHandler.getInstance().getUser(job.usr_id).login, game.skin, "default" ) ).width(300).height(rowHeight);
+		table.row();
 		
-		FileHandle fh = null;
+		//--date start
+		table.add().width(100).height(rowHeight);
+		
+		Label start = (new Label( "Data rozpoczêcia:     ", game.skin, "default" ));
+		start.setAlignment(Align.right);
+		table.add( start ).width(300).height(rowHeight);
+		
+		table.add( new Label(String.valueOf(job.date_start).substring(0, 10), game.skin, "default") ).width(500).height(rowHeight);
+		table.add().width(300).height(rowHeight);
+		table.row();
+		
+		//--date end
+		table.add().width(100).height(rowHeight);
+		
+		Label end = (new Label( "Data zakoñczenia:     ", game.skin, "default" ));
+		end.setAlignment(Align.right);
+		table.add( end ).width(300).height(rowHeight);
+
+		String endDate = String.valueOf(job.date_end).substring(0, 10).equals("0000-00-00") ? "-" : String.valueOf(job.date_end).substring(0, 10);
+		
+		table.add( new Label(endDate, game.skin, "default") ).width(500).height(rowHeight);
+		table.add().width(300).height(rowHeight);
+		table.row();
+		
+		//--points
+		table.add().width(100).height(rowHeight);
+		
+		Label points = (new Label( "Punkty:     ", game.skin, "default" ));
+		points.setAlignment(Align.right);
+		table.add( points ).width(300).height(rowHeight);
+
+		table.add( new Label(String.valueOf(job.points), game.skin, "default") ).width(500).height(rowHeight);
+		table.add().width(300).height(rowHeight);
+		table.row();
+		
+		//--font
+		table.add().width(100).height(rowHeight);
+		
+		Label fontName = (new Label( "Czcionka:     ", game.skin, "default" ));
+		fontName.setAlignment(Align.right);
+		table.add( fontName ).width(300).height(rowHeight);
+
+		table.add( new Label( JobHandler.getInstance().getFont(job.fnt_id).name, game.skin, "default") ).width(500).height(rowHeight);
+		table.add().width(300).height(rowHeight);
+		table.row();
+		
+		//--content
+		table.add().width(100).height(rowHeight);
+		
+		Label content = (new Label( "Tekst:     ", game.skin, "default" ));
+		content.setAlignment(Align.right);
+		table.add( content ).width(300).height(rowHeight);
+
+		String contentValue = job.content;
+		
+		if(contentValue.length() > 50)
+		{
+			contentValue = contentValue.substring(0, 50);
+		}
+		log("Teraz generujemy font o id = " + job.fnt_id);
+		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", 25);
 				
-		if(!gotFont)
-		{
-			gotFont = true;
-			
-			fh = Gdx.files.local("files/font.ttf");
-			
-			hr = new HttpRequest();
-			hr.setUrl("http://www.mantkowicz.pl/tp/ws.php?action=getJobPropertiesFile&id=" + jobId);
-			hr.setMethod(Net.HttpMethods.GET);
-			hr.setContent("");
-			Gdx.net.sendHttpRequest(hr, menuScreen);
-		}
-		else
-		{
-			fh = Gdx.files.local("files/properties.json");
-		}
+		LabelStyle labelStyle = new LabelStyle();
+		labelStyle.font = font;
+		labelStyle.fontColor = Color.WHITE;
 		
-		byte[] fileBytes = httpResponse.getResult();
+		Label contentLabel = new Label( contentValue, labelStyle);
+		//Label contentLabel = new Label( contentValue, game.skin, "default");
+		contentLabel.setWrap(true);
 		
-		fh.writeBytes(fileBytes, false);
-		
-		Logger.log(this, statusCode);
-		
-	}
-
-	@Override
-	public void failed(Throwable t) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void cancelled() {
-		// TODO Auto-generated method stub
-		
+		table.add( contentLabel ).width(500).height(rowHeight);
+		table.add().width(300).height(rowHeight);
+		table.row();
 	}
 }

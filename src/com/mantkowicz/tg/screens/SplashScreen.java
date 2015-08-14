@@ -32,12 +32,11 @@ public class SplashScreen extends BaseScreen
 	
 	private HttpManager manager;
 	
-	private Preferences preferences;
-	
 	private Dict dict;
 	private Array<String> fontsToDownload;
 	
 	private Array<Font> fonts;
+	private float fontsCount;
 		
 	public SplashScreen(Main game)
 	{
@@ -51,8 +50,6 @@ public class SplashScreen extends BaseScreen
 	protected void prepare()
 	{		
 		fontsToDownload = new Array<String>();
-		
-		preferences = Gdx.app.getPreferences("USERS");
 		
 		this.splashImage = this.createImage( "logo" );
 		
@@ -81,10 +78,10 @@ public class SplashScreen extends BaseScreen
 			{
 				Json json = new Json();
 				final Response response = json.fromJson(Response.class, manager.getResponse());
-								
+				
 				final JobResult result = json.fromJson(JobResult.class, response.value);
 								
-				JobHandler.getInstance().refresh(result.value);
+				JobHandler.getInstance().refreshJobs(result.value);
 				
 				JobHandler.getInstance().printJobs();
 				
@@ -105,13 +102,10 @@ public class SplashScreen extends BaseScreen
 				final Response response = json.fromJson(Response.class, manager.getResponse());
 
 				UserResult result = json.fromJson(UserResult.class, response.value);
+								
+				JobHandler.getInstance().refreshUsers(result.value);
 				
-				Array<User> users = result.value;
-				
-				for(User user : users)
-				{
-					preferences.putString(String.valueOf(user.id), user.login);
-				}
+				JobHandler.getInstance().printUsers();
 				
 				phase = ScreenPhase.DOWNLOADING_FONTS_LIST;
 				
@@ -132,6 +126,10 @@ public class SplashScreen extends BaseScreen
 				FontResult result = json.fromJson(FontResult.class, response.value);
 				
 				fonts = result.value;
+				fontsCount = fonts.size;
+				
+				JobHandler.getInstance().refreshFonts(result.value);
+				JobHandler.getInstance().printFonts();
 				
 				phase = ScreenPhase.DOWNLOADING_FONTS;
 			}
@@ -139,7 +137,7 @@ public class SplashScreen extends BaseScreen
 		
 		else if(phase == ScreenPhase.DOWNLOADING_FONTS)
 		{
-			label.setText("Downloading font files");
+			label.setText("Downloading font files (" + String.valueOf( (int) ( ((fontsCount - fonts.size) / fontsCount) * 100 )  ) + "%)");
 			setCenter(label, -150);
 			
 			if(fonts.size == 0)
@@ -177,34 +175,6 @@ public class SplashScreen extends BaseScreen
 					}
 				}
 			}
-			/*
-			else
-			{
-				if(manager.state == HttpState.IDLE)
-				{
-					if(fontsToDownload.size > 0)
-					{
-						String fontID = fontsToDownload.peek();
-						
-						if( !Gdx.files.local("files/fonts/"+fontID+"/font.ttf").exists())
-						{
-							manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getFont&id="+fontID);
-						}
-						else
-						{
-							fontsToDownload.pop();
-						}
-					}
-				}
-				else if( manager.state == HttpState.FINISHED && !manager.isResultNull() )
-				{
-					String fontID = fontsToDownload.pop();
-					
-					FileHandle fh = Gdx.files.local("files/fonts/"+fontID+"/font.ttf");
-					fh.writeBytes(manager.getResult(), false);
-				}
-			}
-			*/
 		}
 
 	}
