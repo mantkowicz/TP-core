@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.mantkowicz.tg.actors.Paragraph;
+import com.mantkowicz.tg.logger.Logger;
 
 public class CameraManager
 {
@@ -71,6 +72,11 @@ public class CameraManager
 		this.moveTo(0, 0);
 	}
 	
+	public float getZoom()
+	{
+		return this.camera.zoom;
+	}
+	
 	public void step()
 	{		
 		//MOVE
@@ -91,7 +97,7 @@ public class CameraManager
 		{
 			stopZooming();
 		}
-		
+
 		if(this.zoom && (cameraViewWidth > this.targetWidth))
 		{
 			this.camera.zoom -= 0.02;

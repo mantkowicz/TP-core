@@ -1,34 +1,27 @@
 package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout.GlyphRun;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.mantkowicz.tg.actors.Character;
-import com.mantkowicz.tg.actors.Menu;
-import com.mantkowicz.tg.actors.Paragraph;
+import com.mantkowicz.tg.actors.CustomLabel;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
 import com.mantkowicz.tg.managers.FontManager;
-import com.mantkowicz.tg.managers.GestureManager;
 import com.mantkowicz.tg.managers.ScreenShotManager;
-import com.mantkowicz.tg.stage.MyStage;
-import com.mantkowicz.tg.ui.Switch;
 
 public class GameScreen extends BaseScreen
 {
 	Job job;
+	CustomLabel l;
 	/*
 	Menu mainMenu;
 	Menu sentenceMenu;
@@ -75,16 +68,23 @@ public class GameScreen extends BaseScreen
 		LabelStyle labelStyle = new LabelStyle();
 		labelStyle.font = font;
 		labelStyle.fontColor = Color.WHITE;
-		Label contentLabel = new Label(job.content, labelStyle);
+		final Label contentLabel = new Label(job.content, labelStyle);
 		contentLabel.setWrap(true);
 		
 		contentLabel.debug();
 		contentLabel.setAlignment(Align.topLeft);
-		contentLabel.setSize(job.width, job.height);
+		contentLabel.setSize(job.width - job.padding, job.height - job.padding);
 		contentLabel.setPosition(-job.width/2.0f, -job.height/2.0f);
+		
+		l = new CustomLabel(job.content, labelStyle);
+		l.addToStage(stage);
 		
 		this.stage.addActor(contentLabel);
 		
+		CameraManager.getInstance().setCamera(this.stage.getCamera());
+				
+		//CameraManager.getInstance().zoomTo(job.width+50);
+		//CameraManager.getInstance().moveTo(0, 200);
 		/*
 		moveCamera = new Button(this.game.skin, "moveCamera");
 		markSentence = new Button(this.game.skin, "markSentence");
@@ -185,6 +185,11 @@ public class GameScreen extends BaseScreen
 			ScreenShotManager.saveScreenshot();
 		}
 		
+		if( Gdx.input.isKeyJustPressed( Keys.R) )
+		{
+			l.toggle(stage);
+		}
+				
 		/*
 		this.uiViewport.update(this.screenWidth, this.screenHeight);
 		this.uiStage.act();
@@ -203,9 +208,9 @@ public class GameScreen extends BaseScreen
 		}
 		
 		paragraph.refreshCharacters();
-		
+		*/
 		CameraManager.getInstance().step();
-		
+		/*
 		if(s.changed)
 		{
 			if( s.getState() == "CAMERA" )
