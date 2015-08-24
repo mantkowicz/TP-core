@@ -9,8 +9,8 @@ import com.mantkowicz.tg.screens.SplashScreen;
 
 public class Main extends Game 
 {
-	public final int SCREEN_WIDTH = 1366;
-	public final int SCREEN_HEIGHT = 768;
+	public final int SCREEN_WIDTH = 1280;
+	public final int SCREEN_HEIGHT = 800;
 	
 	public AssetManager resourcesManager;
 	public Skin skin;

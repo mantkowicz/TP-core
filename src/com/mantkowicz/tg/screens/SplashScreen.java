@@ -62,7 +62,6 @@ public class SplashScreen extends BaseScreen
 		label.setAlignment(Align.center);
 		this.setCenter(this.label, -150);
 		
-		//this.nextScreen = new GameScreen( this.game );
 		this.nextScreen = new MenuScreen( this.game );
 		
 		this.stage.addActor(this.splashImage);

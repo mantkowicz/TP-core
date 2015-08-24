@@ -2,10 +2,12 @@ package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
@@ -53,7 +55,7 @@ public class MenuScreen extends BaseScreen
 	{
 	}
 	
-	protected void addJob(Table table, Job job, float rowHeight)
+	protected void addJob(Table table, final Job job, float rowHeight)
 	{
 		table.add( new Label('#' + String.valueOf(job.id), game.skin, "default") ).width(100).height(rowHeight);
 		table.add().colspan(2).width(800).height(rowHeight);
@@ -110,8 +112,8 @@ public class MenuScreen extends BaseScreen
 		table.add().width(100).height(rowHeight);
 		
 		Label content = (new Label( "Tekst:     ", game.skin, "default" ));
-		content.setAlignment(Align.right);
-		table.add( content ).width(300).height(rowHeight);
+		content.setAlignment(Align.topRight);
+		table.add( content ).width(300).fill(true);
 
 		String contentValue = job.content;
 		
@@ -119,7 +121,11 @@ public class MenuScreen extends BaseScreen
 		{
 			contentValue = contentValue.substring(0, 50);
 		}
-		log("Teraz generujemy font o id = " + job.fnt_id);
+		
+		contentValue += contentValue;
+		contentValue += contentValue;
+		contentValue += contentValue;
+		
 		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", 25);
 				
 		LabelStyle labelStyle = new LabelStyle();
@@ -127,11 +133,27 @@ public class MenuScreen extends BaseScreen
 		labelStyle.fontColor = Color.WHITE;
 		
 		Label contentLabel = new Label( contentValue, labelStyle);
-		//Label contentLabel = new Label( contentValue, game.skin, "default");
 		contentLabel.setWrap(true);
 		
-		table.add( contentLabel ).width(500).height(rowHeight);
+		table.add( contentLabel ).width(480).pad(10);
 		table.add().width(300).height(rowHeight);
+		table.row();
+		
+		Label choose = (new Label( "WYBIERZ", game.skin, "medium" ));
+		choose.setAlignment(Align.center);
+		
+		choose.addListener(
+				new ClickListener()
+				{
+					public void clicked(InputEvent event, float x, float y)
+					{
+						nextScreen = new GameScreen(game, job);
+						changeScreen = true;
+					}
+				}
+		);
+		
+		table.add(choose).colspan(4).width(table.getWidth()).height(50);
 		table.row();
 	}
 }

@@ -2,26 +2,34 @@ package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.mantkowicz.tg.actors.Character;
 import com.mantkowicz.tg.actors.Menu;
 import com.mantkowicz.tg.actors.Paragraph;
-import com.mantkowicz.tg.actors.Sentence;
-import com.mantkowicz.tg.logger.Logger;
+import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
+import com.mantkowicz.tg.managers.FontManager;
 import com.mantkowicz.tg.managers.GestureManager;
+import com.mantkowicz.tg.managers.ScreenShotManager;
 import com.mantkowicz.tg.stage.MyStage;
 import com.mantkowicz.tg.ui.Switch;
 
 public class GameScreen extends BaseScreen
 {
+	Job job;
+	/*
 	Menu mainMenu;
 	Menu sentenceMenu;
 	
@@ -45,21 +53,39 @@ public class GameScreen extends BaseScreen
 	InputMultiplexer inputMultiplexer;
 	
 	GestureDetector gestureDetector;
-	
-	public GameScreen(Main game)
+	*/
+	public GameScreen(Main game, Job job)
 	{
 		super(game);
 		
-		this.uiViewport = new ExtendViewport(this.screenWidth, this.screenHeight);
+		this.job = job;
 		
-		this.uiStage = new MyStage();	
+		//this.uiViewport = new ExtendViewport(this.screenWidth, this.screenHeight);
 		
-		this.uiStage.setViewport(this.uiViewport);
+		//this.uiStage = new MyStage();	
+		
+		//this.uiStage.setViewport(this.uiViewport);
 	}
 
 	@Override
 	protected void prepare()
 	{
+		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", job.font_size);
+		
+		LabelStyle labelStyle = new LabelStyle();
+		labelStyle.font = font;
+		labelStyle.fontColor = Color.WHITE;
+		Label contentLabel = new Label(job.content, labelStyle);
+		contentLabel.setWrap(true);
+		
+		contentLabel.debug();
+		contentLabel.setAlignment(Align.topLeft);
+		contentLabel.setSize(job.width, job.height);
+		contentLabel.setPosition(-job.width/2.0f, -job.height/2.0f);
+		
+		this.stage.addActor(contentLabel);
+		
+		/*
 		moveCamera = new Button(this.game.skin, "moveCamera");
 		markSentence = new Button(this.game.skin, "markSentence");
 		markCharacter = new Button(this.game.skin, "markCharacter");
@@ -148,12 +174,18 @@ public class GameScreen extends BaseScreen
 		Gdx.input.setInputProcessor(inputMultiplexer);
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
-		
+		*/
 	}
 
 	@Override
 	protected void step()
 	{
+		if( Gdx.input.isKeyJustPressed( Keys.P) )
+		{
+			ScreenShotManager.saveScreenshot();
+		}
+		
+		/*
 		this.uiViewport.update(this.screenWidth, this.screenHeight);
 		this.uiStage.act();
 		this.uiStage.draw();
@@ -195,6 +227,6 @@ public class GameScreen extends BaseScreen
 				Gdx.input.setInputProcessor(inputMultiplexer);
 			}
 			s.changed = false;
-		}
+		}*/
 	}	
 }
