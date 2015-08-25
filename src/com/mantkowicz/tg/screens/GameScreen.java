@@ -3,19 +3,15 @@ package com.mantkowicz.tg.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout.GlyphRun;
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.mantkowicz.tg.actors.CustomLabel;
 import com.mantkowicz.tg.json.Job;
+import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
-import com.mantkowicz.tg.managers.FontManager;
 import com.mantkowicz.tg.managers.ScreenShotManager;
 
 public class GameScreen extends BaseScreen
@@ -67,8 +63,8 @@ public class GameScreen extends BaseScreen
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
 				
-		CameraManager.getInstance().zoomTo(job.width+50);
-		CameraManager.getInstance().moveTo(0, 150);
+		//CameraManager.getInstance().zoomTo(job.width+50);
+		//CameraManager.getInstance().moveTo(0, 150);
 		/*
 		moveCamera = new Button(this.game.skin, "moveCamera");
 		markSentence = new Button(this.game.skin, "markSentence");
@@ -163,7 +159,7 @@ public class GameScreen extends BaseScreen
 
 	@Override
 	protected void step()
-	{
+	{		
 		if( Gdx.input.isKeyJustPressed( Keys.P) )
 		{
 			ScreenShotManager.saveScreenshot();
