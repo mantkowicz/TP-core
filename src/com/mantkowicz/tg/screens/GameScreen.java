@@ -62,29 +62,13 @@ public class GameScreen extends BaseScreen
 
 	@Override
 	protected void prepare()
-	{
-		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", job.font_size);
-		
-		LabelStyle labelStyle = new LabelStyle();
-		labelStyle.font = font;
-		labelStyle.fontColor = Color.WHITE;
-		final Label contentLabel = new Label(job.content, labelStyle);
-		contentLabel.setWrap(true);
-		
-		contentLabel.debug();
-		contentLabel.setAlignment(Align.topLeft);
-		contentLabel.setSize(job.width - job.padding, job.height - job.padding);
-		contentLabel.setPosition(-job.width/2.0f, -job.height/2.0f);
-		
-		l = new CustomLabel(job.content, labelStyle);
-		l.addToStage(stage);
-		
-		this.stage.addActor(contentLabel);
+	{	
+		l = new CustomLabel(job, stage);
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
 				
-		//CameraManager.getInstance().zoomTo(job.width+50);
-		//CameraManager.getInstance().moveTo(0, 200);
+		CameraManager.getInstance().zoomTo(job.width+50);
+		CameraManager.getInstance().moveTo(0, 150);
 		/*
 		moveCamera = new Button(this.game.skin, "moveCamera");
 		markSentence = new Button(this.game.skin, "markSentence");
@@ -187,7 +171,7 @@ public class GameScreen extends BaseScreen
 		
 		if( Gdx.input.isKeyJustPressed( Keys.R) )
 		{
-			l.toggle(stage);
+			l.toggle();
 		}
 				
 		/*
