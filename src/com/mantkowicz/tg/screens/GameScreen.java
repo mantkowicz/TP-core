@@ -2,14 +2,10 @@ package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
+import com.badlogic.gdx.InputMultiplexer;
 import com.mantkowicz.tg.actors.CustomLabel;
+import com.mantkowicz.tg.actors.Indicator;
 import com.mantkowicz.tg.json.Job;
-import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
 import com.mantkowicz.tg.managers.ScreenShotManager;
@@ -63,8 +59,10 @@ public class GameScreen extends BaseScreen
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
 				
-		//CameraManager.getInstance().zoomTo(job.width+50);
-		//CameraManager.getInstance().moveTo(0, 150);
+		CameraManager.getInstance().zoomTo(job.width+150);
+		CameraManager.getInstance().moveTo(0, 100);
+		
+		stage.addActor( new Indicator() );
 		/*
 		moveCamera = new Button(this.game.skin, "moveCamera");
 		markSentence = new Button(this.game.skin, "markSentence");
@@ -148,6 +146,7 @@ public class GameScreen extends BaseScreen
 		
 		inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(this.stage);
+		
 		inputMultiplexer.addProcessor(this.uiStage);
 		//inputMultiplexer.addProcessor(gestureDetector);
 		
@@ -159,7 +158,9 @@ public class GameScreen extends BaseScreen
 
 	@Override
 	protected void step()
-	{		
+	{	
+		l.addToStage();
+		
 		if( Gdx.input.isKeyJustPressed( Keys.P) )
 		{
 			ScreenShotManager.saveScreenshot();

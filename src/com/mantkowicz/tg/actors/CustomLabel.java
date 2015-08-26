@@ -6,7 +6,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout.GlyphRun;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+//import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.mantkowicz.tg.actors.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
@@ -19,7 +20,10 @@ import com.mantkowicz.tg.managers.FontManager;
 public class CustomLabel
 {
 	Array<Label> glyphs;
-		
+	
+	int startId = -1;
+	int endId = -1;
+	
 	Label lab;
 
 	Job job;
@@ -27,6 +31,8 @@ public class CustomLabel
 	Stage stage;
 	
 	boolean labelVisible = true;
+	
+	
 	
 	FloatArray xa = new FloatArray();
 	Array<Glyph> gl = new Array<Glyph>();
@@ -72,7 +78,7 @@ public class CustomLabel
 			}
 		}
 		
-		this.stage.addActor(this.lab);
+		//this.stage.addActor(this.lab);
 		
 		glyphs = new Array<Label>();
 		
@@ -84,6 +90,8 @@ public class CustomLabel
 			
 			Label tempLabel = new Label(job.content.substring(i, i+1), labelStyle);
 			tempLabel.addListener( listener );
+			
+			tempLabel.id = i;
 			
 			tempLabel.setUserObject("Original");
 			
@@ -109,6 +117,24 @@ public class CustomLabel
 			}
 			else
 			{
+				//changing color
+				if( startId != -1 && l.id == startId )
+				{
+					l.getStyle().fontColor = Color.BLUE;
+				}
+				else if( endId != -1 && l.id == endId)
+				{
+					l.getStyle().fontColor = Color.BLUE;
+				}
+				else if (startId != -1 && endId != -1 && l.id > startId && l.id < endId )
+				{
+					l.getStyle().fontColor = Color.BLUE;
+				}
+				else
+				{
+					l.getStyle().fontColor = Color.WHITE;
+				}
+				
 				prevW += xa.get(ctr);//lab.getGlyphLayout().runs.first().xAdvances.get(ctr);
 				
 				l.setX( lab.getX() + prevW + gl.get(ctr).xoffset); //lab.getGlyphLayout().runs.first().glyphs.get(ctr).xoffset );
@@ -151,7 +177,29 @@ public class CustomLabel
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			( (Label)event.getTarget() ).getStyle().fontColor = Color.BLUE;
+			int targetId = ( (Label)event.getTarget() ).id;
+			
+			if(startId == -1 && endId == -1)
+			{
+				startId = targetId;
+			}
+			else if(startId != -1 && endId == -1)
+			{
+				if(targetId <= startId)
+				{
+					endId = startId;
+					startId = targetId; 
+				}
+				else
+				{
+					endId = targetId;
+				}
+			}
+			else
+			{
+				startId = -1;
+				endId = -1;
+			}
 		}
 	};
 }
