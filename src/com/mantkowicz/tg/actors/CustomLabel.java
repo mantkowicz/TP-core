@@ -19,7 +19,7 @@ import com.mantkowicz.tg.managers.FontManager;
 
 public class CustomLabel
 {
-	Array<Label> glyphs;
+	public Array<Label> glyphs;
 	
 	int startId = -1;
 	int endId = -1;
@@ -109,7 +109,7 @@ public class CustomLabel
 		
 		for(Label l : glyphs)
 		{
-			//l.debug();
+			l.debug();
 			if( l.getText().chars[0] == '\n' )
 			{
 				row += lab.getStyle().font.getLineHeight();

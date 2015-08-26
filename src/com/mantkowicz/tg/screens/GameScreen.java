@@ -2,9 +2,11 @@ package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Array;
 import com.mantkowicz.tg.actors.CustomLabel;
 import com.mantkowicz.tg.actors.Indicator;
+import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
@@ -62,7 +64,9 @@ public class GameScreen extends BaseScreen
 		CameraManager.getInstance().zoomTo(job.width+150);
 		CameraManager.getInstance().moveTo(0, 100);
 		
-		stage.addActor( new Indicator() );
+		Indicator ind = new Indicator();
+		
+		stage.addActor( ind );
 		/*
 		moveCamera = new Button(this.game.skin, "moveCamera");
 		markSentence = new Button(this.game.skin, "markSentence");
@@ -154,7 +158,20 @@ public class GameScreen extends BaseScreen
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
 		*/
+		
+		l.addToStage();
+		
+		av = new Array<Vector2>();
+		
+		for(Label g : l.glyphs)
+		{
+			av.add(new Vector2( g.getX(), g.getY() ));
+		}
+		
+		ind.grid = av;
 	}
+	
+	Array<Vector2> av;
 
 	@Override
 	protected void step()
