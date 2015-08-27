@@ -66,7 +66,7 @@ public class GameScreen extends BaseScreen
 		
 		Indicator ind = new Indicator();
 		
-		stage.addActor( ind );
+		
 		/*
 		moveCamera = new Button(this.game.skin, "moveCamera");
 		markSentence = new Button(this.game.skin, "markSentence");
@@ -165,10 +165,19 @@ public class GameScreen extends BaseScreen
 		
 		for(Label g : l.glyphs)
 		{
-			av.add(new Vector2( g.getX(), g.getY() ));
+			if(g.getText().chars[0] != '\n')
+			{
+				//log( g.getText().toString() + g.getX() + ", " + g.getY() );
+				
+				float x = g.getStyle().font.getDescent();
+				
+				av.add(new Vector2( g.getX(), g.getY() - x ));
+			}
 		}
 		
-		ind.grid = av;
+		ind.setGrid(av);
+		
+		stage.addActor(ind);
 	}
 	
 	Array<Vector2> av;
@@ -185,7 +194,7 @@ public class GameScreen extends BaseScreen
 		
 		if( Gdx.input.isKeyJustPressed( Keys.R) )
 		{
-			l.toggle();
+			//l.toggle();
 		}
 				
 		/*

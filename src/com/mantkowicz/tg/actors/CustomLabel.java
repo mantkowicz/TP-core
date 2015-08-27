@@ -89,7 +89,7 @@ public class CustomLabel
 			labelStyle.fontColor = Color.WHITE;
 			
 			Label tempLabel = new Label(job.content.substring(i, i+1), labelStyle);
-			tempLabel.addListener( listener );
+			//tempLabel.addListener( listener );
 			
 			tempLabel.id = i;
 			
@@ -140,6 +140,7 @@ public class CustomLabel
 				l.setX( lab.getX() + prevW + gl.get(ctr).xoffset); //lab.getGlyphLayout().runs.first().glyphs.get(ctr).xoffset );
 				l.setY( lab.getY() + lab.getHeight() - row );
 							
+				l.toBack();
 				stage.addActor(l);
 				
 				ctr++;
@@ -147,7 +148,7 @@ public class CustomLabel
 		}
 	}
 	
-	public void toggle()
+	/*public void toggle()
 	{ 
 		if(labelVisible)
 		{			
@@ -166,7 +167,7 @@ public class CustomLabel
 		}
 		
 		labelVisible = !labelVisible;
-	}
+	}*/
 	
 	private void log(Object msg)
 	{

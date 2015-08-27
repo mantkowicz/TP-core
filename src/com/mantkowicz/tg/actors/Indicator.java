@@ -18,7 +18,7 @@ public class Indicator extends Actor
 	
 	float currentX, currentY;
 	
-	public Array<Vector2> grid = new Array<Vector2>();
+	Array<Vector2> grid = new Array<Vector2>();
 		
 	public Indicator()
 	{
@@ -45,17 +45,25 @@ public class Indicator extends Actor
 		this.debug();
 	}
 	
+	public void setGrid(Array<Vector2> newGrid)
+	{
+		for(Vector2 v : newGrid) Logger.log(1, v.x + ", " + v.y);
+		
+		this.grid = newGrid;
+	}
+	
 	@Override
 	public void act(float delta)
 	{
 		updatePosition();
+		this.toFront();
 		//Logger.log(1, currentX + ", " + currentY);
 	}
 	
 	@Override
 	public void draw(Batch batch, float parentAlpha) 
 	{
-		batch.draw(texture, currentX, currentY);
+		batch.draw(texture, currentX - texture.getWidth(), currentY - texture.getHeight());
 	}
 	
 	private void updatePosition()
@@ -70,7 +78,7 @@ public class Indicator extends Actor
 		
 		for(Vector2 v : grid)
 		{
-			Logger.log(1, v.x + " ! " + v.y);
+			//Logger.log(1, v.x + " ! " + v.y);
 			//Logger.log("", v.dst(posVec) + " | " + target.dst(posVec));
 			
 			if( v.dst(posVec) < target.dst(posVec) )
@@ -97,14 +105,14 @@ public class Indicator extends Actor
 	{
 		public void drag(InputEvent event, float x, float y, int pointer)
 		{		
-			event.getTarget().setX( event.getTarget().getX() + x - getWidth() );
-			event.getTarget().setY( event.getTarget().getY() + y - getHeight() );
+			event.getTarget().setX( event.getTarget().getX() + x );
+			event.getTarget().setY( event.getTarget().getY() + y );
 		}
 		
 		public void dragStop(InputEvent event, float x, float y, int pointer)
 		{
 			setPosition(currentX, currentY);
-			Logger.log(3, "GORA");
+			//Logger.log(3, "GORA");
 		}
 	};
 }
