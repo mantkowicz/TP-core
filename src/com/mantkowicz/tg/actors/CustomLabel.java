@@ -6,8 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout.GlyphRun;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-//import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.mantkowicz.tg.actors.Label;
+import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
@@ -16,13 +15,14 @@ import com.badlogic.gdx.utils.FloatArray;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.managers.FontManager;
+//import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 public class CustomLabel
 {
 	public Array<Label> glyphs;
 	
-	int startId = -1;
-	int endId = -1;
+	public int startId = -1;
+	public int endId = -1;
 	
 	Label lab;
 
@@ -32,7 +32,7 @@ public class CustomLabel
 	
 	boolean labelVisible = true;
 	
-	
+	public float widthM = 0;
 	
 	FloatArray xa = new FloatArray();
 	Array<Glyph> gl = new Array<Glyph>();
@@ -95,6 +95,8 @@ public class CustomLabel
 			
 			tempLabel.setUserObject("Original");
 			
+			tempLabel.setAlignment(Align.center);
+			
 			glyphs.add( tempLabel );
 		}
 	}
@@ -109,7 +111,7 @@ public class CustomLabel
 		
 		for(Label l : glyphs)
 		{
-			l.debug();
+			//l.debug();
 			if( l.getText().chars[0] == '\n' )
 			{
 				row += lab.getStyle().font.getLineHeight();
@@ -117,23 +119,33 @@ public class CustomLabel
 			}
 			else
 			{
+				if(widthM!=0) Logger.log(this, widthM);
+				
 				//changing color
 				if( startId != -1 && l.id == startId )
 				{
 					l.getStyle().fontColor = Color.BLUE;
+					l.setWidth( l.getWidth() + widthM );
+					xa.set(ctr, xa.get(ctr) + widthM);
 				}
 				else if( endId != -1 && l.id == endId)
 				{
 					l.getStyle().fontColor = Color.BLUE;
+					l.setWidth( l.getWidth() + widthM );
+					xa.set(ctr, xa.get(ctr) + widthM);
 				}
 				else if (startId != -1 && endId != -1 && l.id > startId && l.id < endId )
 				{
 					l.getStyle().fontColor = Color.BLUE;
+					l.setWidth( l.getWidth() + widthM );
+					xa.set(ctr, xa.get(ctr) + widthM);
 				}
 				else
 				{
 					l.getStyle().fontColor = Color.WHITE;
 				}
+				
+				
 				
 				prevW += xa.get(ctr);//lab.getGlyphLayout().runs.first().xAdvances.get(ctr);
 				
@@ -141,11 +153,14 @@ public class CustomLabel
 				l.setY( lab.getY() + lab.getHeight() - row );
 							
 				l.toBack();
+				l.setTouchable(Touchable.disabled);
 				stage.addActor(l);
 				
 				ctr++;
 			}
 		}
+		
+		if(widthM != 0) widthM = 0;
 	}
 	
 	/*public void toggle()

@@ -2,28 +2,39 @@ package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.FloatArray;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.mantkowicz.tg.actors.CustomLabel;
 import com.mantkowicz.tg.actors.Indicator;
 import com.mantkowicz.tg.actors.Label;
+import com.mantkowicz.tg.enums.IndicatorType;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
 import com.mantkowicz.tg.managers.ScreenShotManager;
+import com.mantkowicz.tg.stage.MyStage;
 
 public class GameScreen extends BaseScreen
 {
 	Job job;
 	CustomLabel l;
+	Indicator ind;
+	Indicator ind2;
 	/*
 	Menu mainMenu;
 	Menu sentenceMenu;
 	
 	GestureManager gm;
 	
-	ExtendViewport uiViewport;
-	Stage uiStage;
+	*/ExtendViewport uiViewport;
+	Stage uiStage;/*
 	
 	Switch s;
 	
@@ -37,7 +48,7 @@ public class GameScreen extends BaseScreen
 	
 	final float STEP = 1;
 	
-	InputMultiplexer inputMultiplexer;
+	*/InputMultiplexer inputMultiplexer;/*
 	
 	GestureDetector gestureDetector;
 	*/
@@ -47,11 +58,11 @@ public class GameScreen extends BaseScreen
 		
 		this.job = job;
 		
-		//this.uiViewport = new ExtendViewport(this.screenWidth, this.screenHeight);
+		this.uiViewport = new ExtendViewport(this.screenWidth, this.screenHeight);
 		
-		//this.uiStage = new MyStage();	
+		this.uiStage = new MyStage();	
 		
-		//this.uiStage.setViewport(this.uiViewport);
+		this.uiStage.setViewport(this.uiViewport);
 	}
 
 	@Override
@@ -64,7 +75,35 @@ public class GameScreen extends BaseScreen
 		CameraManager.getInstance().zoomTo(job.width+150);
 		CameraManager.getInstance().moveTo(0, 100);
 		
-		Indicator ind = new Indicator();
+		ind = new Indicator(IndicatorType.START);
+		ind2 = new Indicator(IndicatorType.END);
+
+		Button a = new Button(this.game.skin, "home");
+		Button b = new Button(this.game.skin, "settings");
+		
+		a.setPosition(300, 250);
+		b.setPosition(450, 250);
+		
+		a.addListener( new ClickListener(){
+			
+			@Override
+			public void clicked(InputEvent event, float x, float y)
+			{log('A');
+				l.widthM = 0.1f;
+			}
+		});
+
+		b.addListener( new ClickListener(){
+		
+			@Override
+			public void clicked(InputEvent event, float x, float y)
+			{log('B');
+				l.widthM = -0.1f;
+			}
+		});
+		
+		uiStage.addActor( a );
+		uiStage.addActor( b );
 		
 		
 		/*
@@ -147,7 +186,7 @@ public class GameScreen extends BaseScreen
 		
 		gestureDetector = new GestureDetector(this.gm);
 		
-		
+		*/
 		inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(this.stage);
 		
@@ -155,37 +194,40 @@ public class GameScreen extends BaseScreen
 		//inputMultiplexer.addProcessor(gestureDetector);
 		
 		Gdx.input.setInputProcessor(inputMultiplexer);
-		
+		/*
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
 		*/
 		
 		l.addToStage();
 		
 		av = new Array<Vector2>();
+		wv = new FloatArray();
 		
-		for(Label g : l.glyphs)
-		{
-			if(g.getText().chars[0] != '\n')
-			{
-				//log( g.getText().toString() + g.getX() + ", " + g.getY() );
-				
-				float x = g.getStyle().font.getDescent();
-				
-				av.add(new Vector2( g.getX(), g.getY() - x ));
-			}
-		}
 		
-		ind.setGrid(av);
-		
+
+		ind.setGrid(l.glyphs);
 		stage.addActor(ind);
+		
+		ind2.setGrid(l.glyphs);
+		stage.addActor(ind2);
 	}
 	
 	Array<Vector2> av;
+	FloatArray wv;
 
 	@Override
 	protected void step()
-	{	
+	{			
 		l.addToStage();
+		
+		l.endId = 20;
+		
+		l.startId = ind.getCurrentId();
+		
+		l.endId = ind2.getCurrentId();
+		
+		ind.setMax(l.endId);
+		ind2.setMin(l.startId);
 		
 		if( Gdx.input.isKeyJustPressed( Keys.P) )
 		{
@@ -197,11 +239,11 @@ public class GameScreen extends BaseScreen
 			//l.toggle();
 		}
 				
-		/*
+		
 		this.uiViewport.update(this.screenWidth, this.screenHeight);
 		this.uiStage.act();
 		this.uiStage.draw();
-		
+		/*
 		
 		if( this.paragraph.getCurrentCharacter() != null || this.paragraph.getCurrentSentence() != null )
 		{
