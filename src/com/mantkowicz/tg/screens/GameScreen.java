@@ -227,7 +227,7 @@ public class GameScreen extends BaseScreen
 		l.endId = ind2.getCurrentId();
 		
 		ind.setMax(l.endId);
-		ind2.setMin(l.startId);
+		//ind2.setMin(l.startId);
 		
 		if( Gdx.input.isKeyJustPressed( Keys.P) )
 		{

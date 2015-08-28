@@ -14,12 +14,10 @@ import com.mantkowicz.tg.enums.IndicatorType;
 import com.mantkowicz.tg.logger.Logger;
 
 public class Indicator extends Actor
-{
+{	
 	IndicatorType indicatorType;
 	
 	Texture texture;
-	boolean up = false;
-	float currentX, currentY;
 	
 	private FloatArray lWidths;
 	
@@ -29,10 +27,13 @@ public class Indicator extends Actor
 	
 	int currentId = 0;
 	
-	int minId = -1;
-	int maxId = -1;
+	Integer minId = null;
+	Integer maxId = null;
 	
-	float currentGlyphWidth = 0;
+	boolean isBeingDragged = false;
+	
+	Vector2 sDragVec = new Vector2();
+	Vector2 cDragVec = new Vector2();
 	
 	public Indicator(IndicatorType indicatorType)
 	{	
@@ -41,12 +42,12 @@ public class Indicator extends Actor
 		if(this.indicatorType == IndicatorType.START)
 		{
 			texture = new Texture( Gdx.files.internal("1.png") );
+			setUserObject("dupa");
 		}
 		else
 		{
 			texture = new Texture( Gdx.files.internal("2.png") );
 		}
-		
 		
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
@@ -54,10 +55,29 @@ public class Indicator extends Actor
 		
 		this.addListener(listener);
 				
-		this.setUserObject( "DUPA" );
-				
-		this.debug();
+		//this.debug();
 	}
+	
+	@Override
+	public float getX()
+	{
+		return super.getX() + getWidth()/2f;
+	}
+	
+	@Override
+	public float getY()
+	{
+		return super.getY() + getHeight()/2f;
+	}
+	
+	@Override
+	public void setPosition(float x, float y)
+	{
+		super.setPosition(x - getWidth()/2f, y - getHeight()/2f);
+	}
+	
+	
+	
 	
 	public void updateGrid()
 	{
@@ -67,9 +87,7 @@ public class Indicator extends Actor
 		for(Label g : glyphs)
 		{
 			if(g.getText().chars[0] != '\n')
-			{
-				//log( g.getText().toString() + g.getX() + ", " + g.getY() );
-				
+			{				
 				float x = g.getStyle().font.getDescent();
 				
 				grid.add(new Vector2( g.getX(), g.getY() - x ));
@@ -94,30 +112,24 @@ public class Indicator extends Actor
 		
 		if(this.indicatorType == IndicatorType.START)
 		{
-			setPosition(grid.first().x, grid.first().y);
+			currentId = 0;
 		}
 		else
 		{
-			setPosition(grid.peek().x, grid.peek().y);
+			currentId = grid.size - 1;
 		}
-		
-		
-		updatePosition();
-		
-		setPosition(currentX - getWidth()/2, currentY - getHeight()/2);
 	}
 		
 	@Override
 	public void act(float delta)
 	{
 		this.toFront();
-		
-		if( glyphs != null )
-		{		
+
+		if( glyphs != null && !isBeingDragged )
+		{
 			updateGrid();
-			updatePosition();
+			changePosition(1);
 		}
-		//Logger.log(1, currentX + ", " + currentY);
 	}
 	
 	@Override
@@ -125,11 +137,11 @@ public class Indicator extends Actor
 	{
 		if(this.indicatorType == IndicatorType.START)
 		{
-			batch.draw(texture, currentX - texture.getWidth(), currentY - texture.getHeight());
+			batch.draw(texture, grid.get(currentId).x - texture.getWidth(), grid.get(currentId).y - texture.getHeight() );
 		}
 		else
 		{
-			batch.draw(texture, currentX + currentGlyphWidth, currentY - texture.getHeight());
+			batch.draw(texture, grid.get(currentId).x + lWidths.get(currentId), grid.get(currentId).y - texture.getHeight() );
 		}
 		
 	}
@@ -144,92 +156,68 @@ public class Indicator extends Actor
 		this.maxId = id;
 	}
 	
-	
-	private void updatePosition()
+	private void changePosition( int x)
 	{
-		//currentX = getX() + getWidth()/2;
-		//currentY = getY() + getHeight()/2;
-		float nextX = 0, nextY = 0;
-		
-		Vector2 posVec = new Vector2(getX(), getY());
+		if( indicatorType == IndicatorType.START )
+		{
+			setPosition(grid.get(currentId).x, grid.get(currentId).y);
+		}
+		else
+		{
+			setPosition(grid.get(currentId).x + lWidths.get(currentId), grid.get(currentId).y);
+		}
+	}
+	
+	private void updateIndex(int x)
+	{
 		Vector2 target = new Vector2(0, 1000000);
 
-		int vCtr = 0;
-		
-		for(Vector2 v : grid)
+		for(int i = 0; i < grid.size; i++)
 		{
-			boolean outOfBounds = false;
+			Vector2 v = grid.get(i);
 			
-			if( minId != -1 )
+			if( (v == null) || (minId != null && i < minId) || (maxId != null && i > maxId) ) 
 			{
-				if( vCtr < minId ) outOfBounds = true;
+				continue;
 			}
 			
-			if( maxId != -1 )
-			{
-				if( vCtr > maxId ) outOfBounds = true;
-			}
-		
-			if(v != null && !outOfBounds )
-			{
-				//Logger.log(1, v.x + " ! " + v.y);
-				//Logger.log("", v.dst(posVec) + " | " + target.dst(posVec));
+			float vD = v.dst(cDragVec);
+			float tD = target.dst(cDragVec);
+			
+			if( (vD < tD) || (vD == tD && (v.x > target.x && v.y > target.y)) )
+			{			
+				target = v;
 				
-				if( v.dst(posVec) < target.dst(posVec) )
-				{
-					nextX = v.x;
-					nextY = v.y;
-					
-					target = v;
-					
-					currentId = vCtr;
-					
-					if(lWidths != null) currentGlyphWidth = lWidths.get(vCtr);
-				}
-				else if( v.dst(posVec) == target.dst(posVec) )
-				{
-					if( v.x > target.x && v.y > target.y )
-					{
-						nextX = v.x;
-						nextY = v.y;
-						
-						target = v;
-						
-						currentId = vCtr;
-						
-						if(lWidths != null) currentGlyphWidth = lWidths.get(vCtr);
-					}
-				}
+				currentId = i;
 			}
-			
-			vCtr++;
 		}
-		
-		setPosition(nextX, nextY);
-		
 	}
 	
 	public int getCurrentId()
 	{
 		return currentId;
 	}
-	
+	int globalC = 0;
 	DragListener listener = new DragListener()
 	{
 		public void dragStart(InputEvent event, float x, float y, int pointer)
 		{
-			currentX = getX() + getWidth()/2;
-			currentY = getY() + getHeight()/2;
+			sDragVec.set(getX(), getY());
+			isBeingDragged = true;
 		}
 		
 		public void drag(InputEvent event, float x, float y, int pointer)
-		{		
-			currentX += x;
-			currentY += y;
+		{	
+			cDragVec.set( sDragVec.x + x , sDragVec.y + y);
+			
+			updateIndex(0);
 		}
 		
 		public void dragStop(InputEvent event, float x, float y, int pointer)
 		{
+			cDragVec.set( getX(), getY() );
+			
+			isBeingDragged = false;
 		}
 	};
 }
