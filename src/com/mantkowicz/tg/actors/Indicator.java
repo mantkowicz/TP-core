@@ -210,6 +210,11 @@ public class Indicator extends Actor
 		{	
 			cDragVec.set( sDragVec.x + x , sDragVec.y + y);
 			
+			if( indicatorType == IndicatorType.END )
+			{
+				cDragVec.x -= getWidth()/2f;
+			}
+			
 			updateIndex(0);
 		}
 		

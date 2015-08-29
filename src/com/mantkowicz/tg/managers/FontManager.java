@@ -24,7 +24,7 @@ public class FontManager
 	
 	public BitmapFont generateFont(String fontPath, int fontSize)
 	{ 		
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator( Gdx.files.internal(fontPath) );
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator( Gdx.files.local(fontPath) );
 		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
 		
 		parameter.characters = "qwertyuiopasdfghjklzxcvbnmÍÛπú≥øüÊÒQWERTYUIOPASDFGHJKLZXCVBNM ”•å£Øè∆—1234567890-=[]\\;\',./!@#$%^&*()_+{}|:\"<>?";
