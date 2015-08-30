@@ -158,7 +158,7 @@ public abstract class BaseScreen implements Screen
 				return atlas.findRegion( regionName );
 			}
 		}
-		
+		log(regionName + " nie znaleziono!");
 		return null;
 	}
 	

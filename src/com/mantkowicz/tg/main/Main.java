@@ -9,6 +9,8 @@ import com.mantkowicz.tg.screens.SplashScreen;
 
 public class Main extends Game 
 {
+	public static boolean isMobile = true;
+	
 	public final int SCREEN_WIDTH = 1280;
 	public final int SCREEN_HEIGHT = 800;
 	

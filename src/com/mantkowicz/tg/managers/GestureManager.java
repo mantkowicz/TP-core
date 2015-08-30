@@ -40,15 +40,15 @@ public class GestureManager implements GestureListener
 
 	@Override
 	public boolean fling(float velocityX, float velocityY, int button) {
-		CameraManager.getInstance().moveTo(this.stage.getCamera().position.x + velocityX * 0.5f, this.stage.getCamera().position.y - velocityY * 0.5f);
+		CameraManager.getInstance().moveTo(this.stage.getCamera().position.x - velocityX * 0.5f, this.stage.getCamera().position.y + velocityY * 0.5f);
 		return false;
 	}
 
 	@Override
 	public boolean pan(float x, float y, float deltaX, float deltaY) {
 
-		stage.getCamera().position.x += deltaX;
-		stage.getCamera().position.y -= deltaY;
+		stage.getCamera().position.x -= deltaX;
+		stage.getCamera().position.y += deltaY;
 		
 		return false;
 	}

@@ -5,13 +5,19 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
+import com.badlogic.gdx.scenes.scene2d.actions.RotateToAction;
+import com.badlogic.gdx.scenes.scene2d.actions.ScaleToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
@@ -24,6 +30,7 @@ import com.mantkowicz.tg.enums.IndicatorType;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
+import com.mantkowicz.tg.managers.GestureManager;
 import com.mantkowicz.tg.managers.ScreenShotManager;
 import com.mantkowicz.tg.stage.MyStage;
 
@@ -39,7 +46,7 @@ public class GameScreen extends BaseScreen
 	Menu mainMenu;
 	Menu sentenceMenu;
 	
-	GestureManager gm;
+	
 	
 	*/ExtendViewport uiViewport;
 	Stage uiStage;/*
@@ -56,14 +63,16 @@ public class GameScreen extends BaseScreen
 	
 	final float STEP = 1;
 	
-	*/InputMultiplexer inputMultiplexer;/*
+	*/InputMultiplexer inputMultiplexer;
 	
-	
-	
+	GestureManager gm;
 	GestureDetector gestureDetector;
-	*/
 	
+	Button document, camera;
+	Button shrinkButton, stretchButton, zoomInButton, zoomOutButton;
 	Button menuShowButton, menuHideButton, homeButton, backButton, clearButton, settingsButton, uploadButton;
+	
+	Label cameraLabel, documentLabel;
 	HashMap<Button, Label> buttonLabels;
 	
 	public GameScreen(Main game, Job job)
@@ -89,15 +98,9 @@ public class GameScreen extends BaseScreen
 		l = new CustomLabel(job, stage);
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
-				
-		CameraManager.getInstance().zoomTo(job.width+150);
-		CameraManager.getInstance().moveTo(0, 100);
 		
 		ind = new Indicator(IndicatorType.START);
 		ind2 = new Indicator(IndicatorType.END);
-
-		Button a = new Button(this.game.skin, "homeButton");
-		Button b = new Button(this.game.skin, "settingsButton");
 		
 		menuShowButton = new Button(this.game.skin, "menuShow");
 		menuHideButton = new Button(this.game.skin, "menuHide");
@@ -144,32 +147,60 @@ public class GameScreen extends BaseScreen
 		uiStage.addActor(clearButton);
 		uiStage.addActor(settingsButton);
 		uiStage.addActor(uploadButton);
-				
 		
-		a.setPosition(300, 250);
-		b.setPosition(450, 250);
-		
-		a.addListener( new ClickListener(){
+		if( !Main.isMobile )
+		{
+			shrinkButton = new Button(this.game.skin, "shrink");
+			stretchButton = new Button(this.game.skin, "stretch");
+			zoomInButton = new Button(this.game.skin, "zoomIn");
+			zoomOutButton = new Button(this.game.skin, "zoomOut");
 			
-			@Override
-			public void clicked(InputEvent event, float x, float y)
-			{log('A');
-				l.widthM = 0.1f;
-			}
-		});
-
-		b.addListener( new ClickListener(){
+			stretchButton.setPosition(300, 320);
+			shrinkButton.setPosition(375, 320);
+			zoomInButton.setPosition(450, 320);
+			zoomOutButton.setPosition(525, 320);	
+			
+			stretchButton.addListener(stretchListener);
+			shrinkButton.addListener(shrinkListener);
+			zoomInButton.addListener(zoomInListener);
+			zoomOutButton.addListener(zoomOutListener);
+			
+			uiStage.addActor(stretchButton);
+			uiStage.addActor(shrinkButton);
+			uiStage.addActor(zoomInButton);
+			uiStage.addActor(zoomOutButton);
+		}
 		
-			@Override
-			public void clicked(InputEvent event, float x, float y)
-			{log('B');
-				l.widthM = -0.1f;
-			}
-		});
+		camera = new Button(game.skin, "camera");
+		document = new Button(game.skin, "document");
+				
+		camera.setPosition(450, 250);
+		document.setPosition(450, 250);
 		
-		uiStage.addActor( a );
-		uiStage.addActor( b );
+		document.setVisible(false);
 		
+		camera.addListener(cameraListener);
+		document.addListener(documentListener);
+		
+		uiStage.addActor(camera);
+		uiStage.addActor(document);
+		
+		cameraLabel = new Label("przybli¿enie\nkamery", game.skin, "small");
+		cameraLabel.setAlignment(Align.center);
+		cameraLabel.setWrap(true);
+		cameraLabel.setWidth(140);
+		cameraLabel.setPosition(430, 230 - cameraLabel.getHeight());
+		
+		documentLabel = new Label("modyfikacja\nkerningu", game.skin, "small");
+		documentLabel.setAlignment(Align.center);
+		documentLabel.setWrap(true);
+		documentLabel.setWidth(140);
+		documentLabel.setPosition(430, 230 - documentLabel.getHeight());
+		
+		documentLabel.setVisible(false);
+		
+		uiStage.addActor(cameraLabel);
+		uiStage.addActor(documentLabel);
 		
 		/*
 		moveCamera = new Button(this.game.skin, "moveCamera");
@@ -246,22 +277,22 @@ public class GameScreen extends BaseScreen
 		this.stage.addActor(paragraph);
 		
 		nextScreen = new ResultScreen(this.game);
-		
+		*/
 		this.gm = new GestureManager(this.stage);
 		
 		gestureDetector = new GestureDetector(this.gm);
 		
-		*/
+		
 		inputMultiplexer = new InputMultiplexer();
 		inputMultiplexer.addProcessor(this.stage);
 		
 		inputMultiplexer.addProcessor(this.uiStage);
+		
+		inputMultiplexer.addProcessor(gestureDetector);
 		//inputMultiplexer.addProcessor(gestureDetector);
 		
 		Gdx.input.setInputProcessor(inputMultiplexer);
-		/*
-		CameraManager.getInstance().setCamera(this.stage.getCamera());
-		*/
+			
 		
 		l.addToStage();
 		
@@ -518,6 +549,60 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
+		}
+	};
+	
+	ClickListener stretchListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+		}
+	};
+	
+	ClickListener shrinkListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+		}
+	};
+	
+	ClickListener zoomInListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			((OrthographicCamera)stage.getCamera()).zoom -= 0.05f;
+		}
+	};
+	
+	ClickListener zoomOutListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			((OrthographicCamera)stage.getCamera()).zoom += 0.05f;
+		}
+	};
+	
+	ClickListener cameraListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			document.setVisible(true);
+			documentLabel.setVisible(true);
+			
+			camera.setVisible(false);
+			cameraLabel.setVisible(false);
+		}
+	};
+	
+	ClickListener documentListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			document.setVisible(false);
+			documentLabel.setVisible(false);
+			
+			camera.setVisible(true);
+			cameraLabel.setVisible(true);
 		}
 	};
 }
