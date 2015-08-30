@@ -4,19 +4,21 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.screens.SplashScreen;
 
 public class Main extends Game 
 {
-	public static boolean isMobile = true;
+	public static boolean isMobile = false;
 	
 	public final int SCREEN_WIDTH = 1280;
 	public final int SCREEN_HEIGHT = 800;
 	
 	public AssetManager resourcesManager;
 	public Skin skin;
-	
+		
 	@Override
 	public void create()
 	{

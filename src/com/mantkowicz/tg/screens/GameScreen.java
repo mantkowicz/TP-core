@@ -7,21 +7,15 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
-import com.badlogic.gdx.scenes.scene2d.actions.RotateToAction;
-import com.badlogic.gdx.scenes.scene2d.actions.ScaleToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.mantkowicz.tg.actors.CustomLabel;
 import com.mantkowicz.tg.actors.Indicator;
@@ -36,48 +30,36 @@ import com.mantkowicz.tg.stage.MyStage;
 
 public class GameScreen extends BaseScreen
 {
-	Job job;
-	CustomLabel l;
-	Indicator ind;
-	Indicator ind2;
+	ExtendViewport uiViewport;
+	Stage uiStage;
 	
-	boolean checkMenuActions = false;
-	/*
-	Menu mainMenu;
-	Menu sentenceMenu;
+	InputMultiplexer inputMultiplexer;
 	
-	
-	
-	*/ExtendViewport uiViewport;
-	Stage uiStage;/*
-	
-	Switch s;
-	
-	Character label;
-	
-	Button markSentence, markCharacter, moveCamera;
-	
-	Paragraph paragraph;
-	
-	float lastValue = 0;
-	
-	final float STEP = 1;
-	
-	*/InputMultiplexer inputMultiplexer;
-	
-	GestureManager gm;
+	GestureManager gestureManager;
 	GestureDetector gestureDetector;
+		
+	Job job;
 	
-	Button document, camera;
-	Button shrinkButton, stretchButton, zoomInButton, zoomOutButton;
+	CustomLabel paragraph;
+	
+	Button document, camera, cancel;
+	Button shrinkButton, stretchButton, zoomInButton, zoomOutButton, cancelSmall;
 	Button menuShowButton, menuHideButton, homeButton, backButton, clearButton, settingsButton, uploadButton;
 	
-	Label cameraLabel, documentLabel;
+	Label cameraLabel, documentLabel, cancelLabel;
 	HashMap<Button, Label> buttonLabels;
 	
+	Indicator indicatorStart;
+	Indicator indicatorEnd;
+	
+	boolean checkMenuActions = false;
+	boolean zoomModeControlRemoved = true;
+
 	public GameScreen(Main game, Job job)
 	{
 		super(game);
+		
+		clearWithGray = true;
 		
 		this.job = job;
 		
@@ -88,20 +70,180 @@ public class GameScreen extends BaseScreen
 		this.uiStage.setViewport(this.uiViewport);
 		
 		this.nextScreen = new MenuScreen( this.game );
+		
+		buttonLabels = new HashMap<Button, Label>();
 	}
 
 	@Override
 	protected void prepare()
 	{	
-		buttonLabels = new HashMap<Button, Label>();
+		this.gestureManager = new GestureManager(this.stage);
 		
-		l = new CustomLabel(job, stage);
+		gestureDetector = new GestureDetector(this.gestureManager);
+		
+		inputMultiplexer = new InputMultiplexer();
+		
+		inputMultiplexer.addProcessor(this.stage);
+		inputMultiplexer.addProcessor(this.uiStage);
+		inputMultiplexer.addProcessor(gestureDetector);
+		
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
+				
 		
-		ind = new Indicator(IndicatorType.START);
-		ind2 = new Indicator(IndicatorType.END);
+		Image paperShadow = new Image( getAtlasRegion("background_g50") );
+		paperShadow.setSize(job.width + 2*job.padding, job.height + 2*job.padding);
+		paperShadow.setPosition(-job.width/2.0f - job.padding + 5, -job.height/2.0f - job.padding - 5);
 		
+		stage.addActor(paperShadow);
+		
+		Image paperBorder = new Image( getAtlasRegion("background_black") );
+		paperBorder.setSize(job.width + 2*job.padding + 2, job.height + 2*job.padding + 2);
+		paperBorder.setPosition(-job.width/2.0f - job.padding - 1, -job.height/2.0f - job.padding - 1);
+		
+		stage.addActor(paperBorder);
+		
+		Image paper = new Image( getAtlasRegion("background_white") );
+		paper.setSize(job.width + 2*job.padding, job.height + 2*job.padding);
+		paper.setPosition(-job.width/2.0f - job.padding, -job.height/2.0f - job.padding);
+		
+		
+		
+		stage.addActor(paper);
+		
+		Image markedBackground = new Image( getAtlasRegion("background_blue") );
+		
+		paragraph = new CustomLabel(job, stage, markedBackground.getDrawable());
+		
+		paragraph.addToStage();
+		
+		
+		indicatorStart = new Indicator(IndicatorType.START);
+		indicatorStart.setGrid(paragraph.glyphs);
+		indicatorStart.setVisible(false);
+		
+		stage.addActor(indicatorStart);
+		
+		indicatorEnd = new Indicator(IndicatorType.END);	
+		indicatorEnd.setGrid(paragraph.glyphs);
+		indicatorEnd.setVisible(false);
+		
+		stage.addActor(indicatorEnd);
+		
+		
+		createUi();
+	}
+	
+	@Override
+	protected void step()
+	{			
+		paragraph.addToStage();
+		
+		if( paragraph.longPressedId != -1 )
+		{
+			indicatorStart.setCurrentId( paragraph.getWordStart() );
+			indicatorEnd.setCurrentId( paragraph.getWordEnd() );
+			
+			indicatorStart.setVisible(true);
+			indicatorEnd.setVisible(true);
+		}
+		
+		if( indicatorStart.isVisible() && indicatorEnd.isVisible() )
+		{
+			paragraph.startId = indicatorStart.getCurrentId();
+			indicatorEnd.setMin(paragraph.startId);
+			
+			paragraph.endId = indicatorEnd.getCurrentId();
+			indicatorStart.setMax(paragraph.endId);
+			
+			if(game.isMobile && zoomModeControlRemoved)
+			{
+				uiStage.addActor(camera);
+				uiStage.addActor(cameraLabel);
+				
+				uiStage.addActor(document);
+				uiStage.addActor(documentLabel);
+				
+				uiStage.addActor(cancel);
+				uiStage.addActor(cancelLabel);
+				
+				zoomModeControlRemoved = false;
+			}
+		}
+		else
+		{
+			paragraph.startId = -1;
+			paragraph.endId = -1;
+			
+			if(game.isMobile && !zoomModeControlRemoved)
+			{
+				camera.remove();
+				cameraLabel.remove();
+				
+				document.remove();
+				documentLabel.remove();
+				
+				cancel.remove();
+				cancelLabel.remove();
+				
+				zoomModeControlRemoved = true;
+			}
+		}
+		
+		
+		if( Gdx.input.isKeyJustPressed( Keys.P) )
+		{
+			ScreenShotManager.saveScreenshot();
+		}
+		
+		if( Gdx.input.isKeyJustPressed( Keys.R) )
+		{
+			indicatorStart.setVisible(true);
+			indicatorEnd.setVisible(true);
+		}
+		
+		if( Gdx.input.isKeyJustPressed( Keys.T) )
+		{
+			indicatorStart.setVisible(false);
+			indicatorEnd.setVisible(false);
+		}
+				
+		
+		this.uiViewport.update(this.screenWidth, this.screenHeight);
+		this.uiStage.act();
+		this.uiStage.draw();
+		
+		if( checkMenuActions )
+		{			
+			if( (homeButton.getActions().size != 0 || uploadButton.getActions().size != 0) && (menuHideButton.getListeners().size != 0 || menuShowButton.getListeners().size != 0) )
+			{
+				menuHideButton.clearListeners();
+				menuShowButton.clearListeners();
+			}
+			else if( (homeButton.getActions().size == 0 || uploadButton.getActions().size == 0) && (menuHideButton.getListeners().size == 0 && menuShowButton.getListeners().size == 0) )
+			{
+				if( homeButton.getY() == -800 )
+				{
+					menuShowButton.addListener(menuShowListener);
+					
+					checkMenuActions = false;
+				}
+				else if(uploadButton.getY() == -300)
+				{
+					menuHideButton.addListener(menuHideListener);
+					
+					checkMenuActions = false;
+				}
+			}
+		}
+		
+		CameraManager.getInstance().step();
+	}	
+	
+	private void createUi()
+	{
 		menuShowButton = new Button(this.game.skin, "menuShow");
 		menuHideButton = new Button(this.game.skin, "menuHide");
 		homeButton = new Button(this.game.skin, "home");
@@ -154,256 +296,64 @@ public class GameScreen extends BaseScreen
 			stretchButton = new Button(this.game.skin, "stretch");
 			zoomInButton = new Button(this.game.skin, "zoomIn");
 			zoomOutButton = new Button(this.game.skin, "zoomOut");
+			cancelSmall = new Button(this.game.skin, "cancelSmall");
 			
+			cancelSmall.setPosition(225, 320);
 			stretchButton.setPosition(300, 320);
 			shrinkButton.setPosition(375, 320);
 			zoomInButton.setPosition(450, 320);
 			zoomOutButton.setPosition(525, 320);	
 			
+			cancelSmall.addListener(cancelListener);
 			stretchButton.addListener(stretchListener);
 			shrinkButton.addListener(shrinkListener);
 			zoomInButton.addListener(zoomInListener);
 			zoomOutButton.addListener(zoomOutListener);
 			
+			uiStage.addActor(cancelSmall);
 			uiStage.addActor(stretchButton);
 			uiStage.addActor(shrinkButton);
 			uiStage.addActor(zoomInButton);
 			uiStage.addActor(zoomOutButton);
 		}
-		
-		camera = new Button(game.skin, "camera");
-		document = new Button(game.skin, "document");
-				
-		camera.setPosition(450, 250);
-		document.setPosition(450, 250);
-		
-		document.setVisible(false);
-		
-		camera.addListener(cameraListener);
-		document.addListener(documentListener);
-		
-		uiStage.addActor(camera);
-		uiStage.addActor(document);
-		
-		cameraLabel = new Label("przybli¿enie\nkamery", game.skin, "small");
-		cameraLabel.setAlignment(Align.center);
-		cameraLabel.setWrap(true);
-		cameraLabel.setWidth(140);
-		cameraLabel.setPosition(430, 230 - cameraLabel.getHeight());
-		
-		documentLabel = new Label("modyfikacja\nkerningu", game.skin, "small");
-		documentLabel.setAlignment(Align.center);
-		documentLabel.setWrap(true);
-		documentLabel.setWidth(140);
-		documentLabel.setPosition(430, 230 - documentLabel.getHeight());
-		
-		documentLabel.setVisible(false);
-		
-		uiStage.addActor(cameraLabel);
-		uiStage.addActor(documentLabel);
-		
-		/*
-		moveCamera = new Button(this.game.skin, "moveCamera");
-		markSentence = new Button(this.game.skin, "markSentence");
-		markCharacter = new Button(this.game.skin, "markCharacter");
-		
-		s = new Switch();
-		s.addButton("CAMERA", moveCamera);
-		s.addButton("SENTENCE", markSentence);
-		s.addButton("CHARACTER", markCharacter);
-		
-		s.setPosition(400, 244);
-		
-		s.addToStage(uiStage);
-		
-				
-		mainMenu = new Menu( createImage("verticalMenuBar"), new Button(this.game.skin, "menuShow") );
-		
-		mainMenu.addButton(new Button(this.game.skin, "home"));
-		mainMenu.addButton(new Button(this.game.skin, "settings"), nextScreenListener);
-		mainMenu.addButton(new Button(this.game.skin, "verify"));
-		//mainMenu.addButton(new Button(this.game.skin, "next"));
-		
-		mainMenu.prepare();
-		
-		mainMenu.setPosition(543, -384);
-		
-		
-		
-		
-		
-		ClickListener previousListener = new ClickListener() 
-		   {
-		   		public void clicked(InputEvent event, float x, float y)
-		   		{
-		   			if( paragraph.getCurrentCharacter() != null )
-		   			{
-		   				
-		   			}
-		   			paragraph.deactivateAll();
-		   			
-		   		}
-		   };
-		
-		
-		
-		
-		
-		
-		
-		
-		sentenceMenu = new Menu( createImage("verticalMenuBar"), new Button(this.game.skin, "menuShow") );
-		
-		sentenceMenu.addButton(new Button(this.game.skin, "showAll"));//, showAllListener);
-		sentenceMenu.addButton(new Button(this.game.skin, "sensitivity"));
-		sentenceMenu.addButton(new Button(this.game.skin, "previous"), previousListener);
-		//sentenceMenu.addButton(new Button(this.game.skin, "next"), nextListener);
-		
-		sentenceMenu.prepare();
-		
-		sentenceMenu.setPosition(543, -384);
-		
-		sentenceMenu.setVisible(false);
-		
-		uiStage.addActor(mainMenu);
-		uiStage.addActor(sentenceMenu);
-		
-				
-		
-		BitmapFont font = new BitmapFont(Gdx.files.internal("fonts/big.fnt"), this.getAtlasRegion("big") );
-		
-		paragraph = new Paragraph("tutaj jest jedna linia\n tutaj kolejna\n a ta trzecia i ostatnia\n i czwarta na dok³adkê", font);
-		
-		this.stage.addActor(paragraph);
-		
-		nextScreen = new ResultScreen(this.game);
-		*/
-		this.gm = new GestureManager(this.stage);
-		
-		gestureDetector = new GestureDetector(this.gm);
-		
-		
-		inputMultiplexer = new InputMultiplexer();
-		inputMultiplexer.addProcessor(this.stage);
-		
-		inputMultiplexer.addProcessor(this.uiStage);
-		
-		inputMultiplexer.addProcessor(gestureDetector);
-		//inputMultiplexer.addProcessor(gestureDetector);
-		
-		Gdx.input.setInputProcessor(inputMultiplexer);
-			
-		
-		l.addToStage();
-		
-		av = new Array<Vector2>();
-		wv = new FloatArray();
-		
-		
-
-		ind.setGrid(l.glyphs);
-		stage.addActor(ind);
-		
-		ind2.setGrid(l.glyphs);
-		stage.addActor(ind2);
-	}
-	
-	Array<Vector2> av;
-	FloatArray wv;
-
-	@Override
-	protected void step()
-	{			
-		l.addToStage();
-		
-		l.endId = 20;
-		
-		l.startId = ind.getCurrentId();
-		
-		l.endId = ind2.getCurrentId();
-		
-		ind.setMax(l.endId);
-		ind2.setMin(l.startId);
-		
-		if( Gdx.input.isKeyJustPressed( Keys.P) )
-		{
-			ScreenShotManager.saveScreenshot();
-		}
-		
-		if( Gdx.input.isKeyJustPressed( Keys.R) )
-		{
-			//l.toggle();
-		}
-				
-		
-		this.uiViewport.update(this.screenWidth, this.screenHeight);
-		this.uiStage.act();
-		this.uiStage.draw();
-		
-		if( checkMenuActions )
-		{			
-			if( (homeButton.getActions().size != 0 || uploadButton.getActions().size != 0) && (menuHideButton.getListeners().size != 0 || menuShowButton.getListeners().size != 0) )
-			{
-				menuHideButton.clearListeners();
-				menuShowButton.clearListeners();
-			}
-			else if( (homeButton.getActions().size == 0 || uploadButton.getActions().size == 0) && (menuHideButton.getListeners().size == 0 && menuShowButton.getListeners().size == 0) )
-			{
-				if( homeButton.getY() == -800 )
-				{
-					menuShowButton.addListener(menuShowListener);
-					
-					checkMenuActions = false;
-				}
-				else if(uploadButton.getY() == -300)
-				{
-					menuHideButton.addListener(menuHideListener);
-					
-					checkMenuActions = false;
-				}
-			}
-		}
-		
-		/*
-		
-		if( this.paragraph.getCurrentCharacter() != null || this.paragraph.getCurrentSentence() != null )
-		{
-			this.mainMenu.setVisible(false);
-			this.sentenceMenu.setVisible(true);
-		}
 		else
 		{
-			this.mainMenu.setVisible(true);
-			this.sentenceMenu.setVisible(false);
+			camera = new Button(game.skin, "camera");
+			document = new Button(game.skin, "document");
+			cancel = new Button(game.skin, "cancel");
+					
+			camera.setPosition(450, 250);
+			document.setPosition(450, 250);
+			cancel.setPosition(450, 50);
+					
+			document.setVisible(false);
+			
+			camera.addListener(cameraListener);
+			document.addListener(documentListener);
+			cancel.addListener(cancelListener);
+			
+			cameraLabel = new Label("przybli¿enie\nkamery", game.skin, "small");
+			cameraLabel.setAlignment(Align.center);
+			cameraLabel.setWrap(true);
+			cameraLabel.setWidth(140);
+			cameraLabel.setPosition(430, 230 - cameraLabel.getHeight());
+			
+			documentLabel = new Label("modyfikacja\nkerningu", game.skin, "small");
+			documentLabel.setAlignment(Align.center);
+			documentLabel.setWrap(true);
+			documentLabel.setWidth(140);
+			documentLabel.setPosition(430, 230 - documentLabel.getHeight());
+			
+			cancelLabel = new Label("anuluj\nzaznaczenie", game.skin, "small");
+			cancelLabel.setAlignment(Align.center);
+			cancelLabel.setWrap(true);
+			cancelLabel.setWidth(140);
+			cancelLabel.setPosition(430, 40 - cancelLabel.getHeight());
+			
+			documentLabel.setVisible(false);
 		}
-		
-		paragraph.refreshCharacters();
-		*/
-		CameraManager.getInstance().step();
-		/*
-		if(s.changed)
-		{
-			if( s.getState() == "CAMERA" )
-			{
-				inputMultiplexer.addProcessor(gestureDetector);
-				inputMultiplexer.removeProcessor(this.stage);
-				
-				Gdx.input.setInputProcessor(inputMultiplexer);
-			}
-			else if( s.getState() == "SENTENCE" )
-			{
-				inputMultiplexer.removeProcessor(gestureDetector);
-				inputMultiplexer.addProcessor(this.stage);
-				
-				Gdx.input.setInputProcessor(inputMultiplexer);
-			}
-			else if( s.getState() == "CHARACTER" )
-			{
-				Gdx.input.setInputProcessor(inputMultiplexer);
-			}
-			s.changed = false;
-		}*/
-	}	
+	}
+	
 	
 	void createButtonLabel(Button button, String text)
 	{
@@ -603,6 +553,15 @@ public class GameScreen extends BaseScreen
 			
 			camera.setVisible(true);
 			cameraLabel.setVisible(true);
+		}
+	};
+	
+	ClickListener cancelListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			indicatorStart.setVisible(false);
+			indicatorEnd.setVisible(false);
 		}
 	};
 }

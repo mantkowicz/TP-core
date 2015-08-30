@@ -4,7 +4,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.mantkowicz.tg.actors.Label;
+import com.mantkowicz.tg.logger.Logger;
 
 public class GestureManager implements GestureListener 
 {
@@ -33,8 +36,8 @@ public class GestureManager implements GestureListener
 	}
 
 	@Override
-	public boolean longPress(float x, float y) {
-		// TODO Auto-generated method stub
+	public boolean longPress(float x, float y) 
+	{		
 		return false;
 	}
 

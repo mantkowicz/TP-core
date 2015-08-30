@@ -1,15 +1,20 @@
 package com.mantkowicz.tg.actors;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
+import com.mantkowicz.tg.logger.Logger;
 
 public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label 
 {
 	public int id;
+	public boolean longPressed = false;
 	
 	public Label(CharSequence text, LabelStyle style) 
 	{
 		super(text, style);
+		this.addListener(listener);
 	}
 
 	public Label(CharSequence text, Skin skin, String fontName, Color color) 
@@ -31,5 +36,15 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label
 	{
 		super(text, skin);
 	}
+	
+	ActorGestureListener listener = new ActorGestureListener() 
+	{
+		public boolean longPress(Actor actor, float x, float y)
+		{
+			longPressed = true;
+			
+			return false;
+		}
+	};
 
 }

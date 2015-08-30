@@ -6,66 +6,59 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout.GlyphRun;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.Touchable;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.managers.FontManager;
-//import com.badlogic.gdx.scenes.scene2d.ui.Label;
 
 public class CustomLabel
 {
+	Stage stage;
+	Job job;
+	
+	Label pattern;
+	
 	public Array<Label> glyphs;
 	
 	public int startId = -1;
 	public int endId = -1;
 	
-	Label lab;
-
-	Job job;
-	
-	Stage stage;
-	
-	boolean labelVisible = true;
-	
-	public float widthM = 0;
-	
 	FloatArray xa = new FloatArray();
 	Array<Glyph> gl = new Array<Glyph>();
 	
-	public CustomLabel(Job job, Stage stage)
+	Drawable markedBackground;
+	
+	public int longPressedId = -1;
+	
+	public CustomLabel(Job job, Stage stage, Drawable markedBackground)
 	{
-		//job.content = "³¹Ÿæ¿ó³ êœæñ ó³³¹œ";
-		//job.content = "mama";
-		//JEDEN GLYPHRUN NA JEDNA LINIE!!!!!!!!!!!!!
-		job.content = "jedna linia";
-		job.content = "dwiee\nlinie\ni trzecia na dok³adkê!";
-		log(job.content);
-		this.job = job;
 		this.stage = stage;
+		this.job = job;
 		
 		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", job.font_size);
 		
-		
+		this.markedBackground = markedBackground;
 		
 		LabelStyle ls = new LabelStyle();
 		ls.font = font;
 		ls.fontColor = Color.GREEN;
 		
-		this.lab = new Label(job.content, ls);
+		this.pattern = new Label(job.content, ls);
 		
-		this.lab.setWrap(true);
+		this.pattern.setWrap(true);
 		
 		//this.lab.debug();
-		this.lab.setAlignment(Align.topLeft);
-		this.lab.setSize(job.width - job.padding, job.height - job.padding);
-		this.lab.setPosition(-job.width/2.0f, -job.height/2.0f);
+		this.pattern.setAlignment(Align.topLeft);
+		this.pattern.setSize(job.width - job.padding, job.height - job.padding);
+		this.pattern.setPosition(-job.width/2.0f, -job.height/2.0f);
 		
-		for(GlyphRun gr : lab.getGlyphLayout().runs)
+		for(GlyphRun gr : pattern.getGlyphLayout().runs)
 		{
 			for(int i = 0; i < gr.xAdvances.size - 1; i++)
 			{
@@ -86,7 +79,7 @@ public class CustomLabel
 		{
 			LabelStyle labelStyle = new LabelStyle();
 			labelStyle.font = font;
-			labelStyle.fontColor = Color.WHITE;
+			labelStyle.fontColor = Color.BLACK;
 			
 			Label tempLabel = new Label(job.content.substring(i, i+1), labelStyle);
 			//tempLabel.addListener( listener );
@@ -107,83 +100,109 @@ public class CustomLabel
 		float row = glyphs.first().getHeight();
 		int ctr = 0;
 		
-		//log( glyphs.size + " | " + this.xa.size + " | " + this.gl.size);
+		for(Label l : glyphs)
+		{
+			longPressedId = -1;
+			
+			if( l.longPressed )
+			{
+				longPressedId = l.id;
+				
+				l.longPressed = false;
+				
+				break;
+			}
+		}
 		
 		for(Label l : glyphs)
 		{
 			//l.debug();
 			if( l.getText().chars[0] == '\n' )
 			{
-				row += lab.getStyle().font.getLineHeight();
+				row += pattern.getStyle().font.getLineHeight();
 				prevW = 0;
 			}
 			else
-			{
-				if(widthM!=0) Logger.log(this, widthM);
-				
+			{				
 				//changing color
 				if( startId != -1 && l.id == startId )
 				{
-					l.getStyle().fontColor = Color.BLUE;
-					l.setWidth( l.getWidth() + widthM );
-					xa.set(ctr, xa.get(ctr) + widthM);
+					l.getStyle().background = markedBackground;
+					
+					l.setWidth( l.getWidth() );
+					xa.set(ctr, xa.get(ctr) );
 				}
 				else if( endId != -1 && l.id == endId)
 				{
-					l.getStyle().fontColor = Color.BLUE;
-					l.setWidth( l.getWidth() + widthM );
-					xa.set(ctr, xa.get(ctr) + widthM);
+					l.getStyle().background = markedBackground;
+					
+					l.setWidth( l.getWidth() );
+					xa.set(ctr, xa.get(ctr) );
 				}
 				else if (startId != -1 && endId != -1 && l.id > startId && l.id < endId )
 				{
-					l.getStyle().fontColor = Color.BLUE;
-					l.setWidth( l.getWidth() + widthM );
-					xa.set(ctr, xa.get(ctr) + widthM);
+					l.getStyle().background = markedBackground;
+					
+					l.setWidth( l.getWidth() );
+					xa.set(ctr, xa.get(ctr) );
 				}
 				else
 				{
-					l.getStyle().fontColor = Color.WHITE;
+					l.getStyle().background = null;
+					//l.getStyle().fontColor = Color.BLACK;
 				}
 				
 				
 				
 				prevW += xa.get(ctr);//lab.getGlyphLayout().runs.first().xAdvances.get(ctr);
 				
-				l.setX( lab.getX() + prevW + gl.get(ctr).xoffset); //lab.getGlyphLayout().runs.first().glyphs.get(ctr).xoffset );
-				l.setY( lab.getY() + lab.getHeight() - row );
+				l.setX( pattern.getX() + prevW + gl.get(ctr).xoffset); //lab.getGlyphLayout().runs.first().glyphs.get(ctr).xoffset );
+				l.setY( pattern.getY() + pattern.getHeight() - row );
 							
 				l.toBack();
-				l.setTouchable(Touchable.disabled);
+				//l.setTouchable(Touchable.disabled);
 				stage.addActor(l);
 				
 				ctr++;
 			}
 		}
-		
-		if(widthM != 0) widthM = 0;
 	}
 	
-	/*public void toggle()
-	{ 
-		if(labelVisible)
-		{			
-			this.lab.remove();
-			
-			this.addToStage();
-		}
-		else
+	public int getWordStart()
+	{
+		int id = this.longPressedId;
+		
+		while(id >= 0 )
 		{
-			for(Label l : glyphs)
-			{
-				l.remove();
-			}
+			if(this.glyphs.get(id).getText().chars[0] == ' ') break;
+			if(this.glyphs.get(id).getText().chars[0] == '\n') break;
 			
-			this.stage.addActor(this.lab);			
+			id--;
 		}
 		
-		labelVisible = !labelVisible;
-	}*/
+		return id + 1;
+	}
 	
+	public int getWordEnd()
+	{
+		int id = this.longPressedId;
+		
+		while(id < this.glyphs.size )
+		{
+			if(this.glyphs.get(id).getText().chars[0] == ' ') break;
+			if(this.glyphs.get(id).getText().chars[0] == '\n') break;
+			
+			id++;
+		}
+
+		if( id == this.glyphs.size )
+		{
+			id--;
+		}
+		
+		return id;
+	}
+		
 	private void log(Object msg)
 	{
 		Logger.log(this, msg);

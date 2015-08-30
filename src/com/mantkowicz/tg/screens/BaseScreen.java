@@ -35,6 +35,7 @@ public abstract class BaseScreen implements Screen
 	protected int screenHeight;
 	
 	boolean changeScreen = false;
+	boolean clearWithGray = false;
 	
 	BaseScreen nextScreen;
 	ClickListener nextScreenListener;
@@ -64,7 +65,7 @@ public abstract class BaseScreen implements Screen
 		this.viewport = new ExtendViewport(this.screenWidth, this.screenHeight);
 		
 		this.stage = new MyStage();	
-		
+
 		this.stage.setViewport(this.viewport);
 		Gdx.input.setInputProcessor(this.stage);
 		
@@ -76,8 +77,16 @@ public abstract class BaseScreen implements Screen
 	{		
 		this.handleInput();		
 		this.handleChangingScreen();
-				
-		Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1);
+		
+		if( clearWithGray )
+		{
+			Gdx.gl.glClearColor(0.7f, 0.7f, 0.7f, 1);
+		}
+		else
+		{
+			Gdx.gl.glClearColor(0, 0, 0, 1);
+		}
+		
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		this.viewport.update(this.screenWidth, this.screenHeight);

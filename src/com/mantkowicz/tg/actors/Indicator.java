@@ -197,6 +197,12 @@ public class Indicator extends Actor
 	{
 		return currentId;
 	}
+	
+	public void setCurrentId(int id)
+	{
+		this.currentId = id;
+	}
+	
 	int globalC = 0;
 	DragListener listener = new DragListener()
 	{
