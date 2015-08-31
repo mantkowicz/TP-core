@@ -4,21 +4,27 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.mantkowicz.tg.actors.Label;
-import com.mantkowicz.tg.logger.Logger;
+import com.mantkowicz.tg.actors.CustomLabel;
+import com.mantkowicz.tg.enums.ZoomType;
 
 public class GestureManager implements GestureListener 
 {
-	public float initialDistance=0, distance=0;
+	public float initialDistance=0, distance=0, lastDistance=0;
 	
 	private float initialScale = 1;
-	Stage stage;
 	
-	public GestureManager(Stage stage)
+	public ZoomType zoomType;
+	
+	Stage stage;
+	CustomLabel paragraph;
+	
+	public GestureManager(Stage stage, CustomLabel paragraph)
 	{
 		this.stage = stage;
+		this.paragraph = paragraph;
+		
+		zoomType = ZoomType.CAMERA;
 	}
 	
 	@Override
@@ -65,12 +71,33 @@ public class GestureManager implements GestureListener
 	@Override
 	public boolean zoom(float initialDistance, float distance) 
 	{		
-		this.initialDistance = initialDistance;
-		this.distance = distance;
-		
-		((OrthographicCamera)stage.getCamera()).zoom = initialScale * initialDistance/distance;
-		
-		((OrthographicCamera)stage.getCamera()).zoom = (float) MathUtils.clamp(((OrthographicCamera)stage.getCamera()).zoom, 0.1, 4);
+		if( zoomType == ZoomType.CAMERA )
+		{
+			this.initialDistance = initialDistance;
+			this.distance = distance;
+			
+			((OrthographicCamera)stage.getCamera()).zoom = initialScale * initialDistance/distance;
+			
+			((OrthographicCamera)stage.getCamera()).zoom = (float) MathUtils.clamp(((OrthographicCamera)stage.getCamera()).zoom, 0.1, 4);
+		}
+		else
+		{
+			if(lastDistance == 0)
+			{
+				lastDistance = initialDistance;
+			}
+			
+			if( distance > lastDistance + 10 )
+			{
+				paragraph.kerningModificator = 0.1f;
+				lastDistance = distance;
+			}
+			else if( distance < lastDistance - 10 )
+			{
+				paragraph.kerningModificator = -0.1f;
+				lastDistance = distance;
+			}
+		}
 		
         return true;
 	}

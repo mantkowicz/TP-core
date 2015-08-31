@@ -3,8 +3,7 @@ package com.mantkowicz.tg.managers;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
-import com.mantkowicz.tg.actors.Paragraph;
-import com.mantkowicz.tg.logger.Logger;
+import com.mantkowicz.tg.actors.CustomLabel;
 
 public class CameraManager
 {
@@ -66,9 +65,16 @@ public class CameraManager
 		this.zoom = false;
 	}
 	
-	public void showParagraph(Paragraph paragraph)
+	public void showParagraph(CustomLabel paragraph)
 	{
-		//this.zoomTo(paragraph.width);
+		if( paragraph.job.height > paragraph.job.width )
+		{
+			this.zoomTo(paragraph.job.height + 300);
+		}
+		else
+		{
+			this.zoomTo(paragraph.job.width + 300);
+		}
 		this.moveTo(0, 0);
 	}
 	

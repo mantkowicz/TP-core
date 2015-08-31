@@ -21,12 +21,12 @@ import com.mantkowicz.tg.actors.CustomLabel;
 import com.mantkowicz.tg.actors.Indicator;
 import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.enums.IndicatorType;
+import com.mantkowicz.tg.enums.ZoomType;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
 import com.mantkowicz.tg.managers.GestureManager;
 import com.mantkowicz.tg.managers.ScreenShotManager;
-import com.mantkowicz.tg.stage.MyStage;
 
 public class GameScreen extends BaseScreen
 {
@@ -65,7 +65,7 @@ public class GameScreen extends BaseScreen
 		
 		this.uiViewport = new ExtendViewport(this.screenWidth, this.screenHeight);
 		
-		this.uiStage = new MyStage();	
+		this.uiStage = new Stage();	
 		
 		this.uiStage.setViewport(this.uiViewport);
 		
@@ -77,22 +77,6 @@ public class GameScreen extends BaseScreen
 	@Override
 	protected void prepare()
 	{	
-		this.gestureManager = new GestureManager(this.stage);
-		
-		gestureDetector = new GestureDetector(this.gestureManager);
-		
-		inputMultiplexer = new InputMultiplexer();
-		
-		inputMultiplexer.addProcessor(this.stage);
-		inputMultiplexer.addProcessor(this.uiStage);
-		inputMultiplexer.addProcessor(gestureDetector);
-		
-		Gdx.input.setInputProcessor(inputMultiplexer);
-		
-		
-		CameraManager.getInstance().setCamera(this.stage.getCamera());
-				
-		
 		Image paperShadow = new Image( getAtlasRegion("background_g50") );
 		paperShadow.setSize(job.width + 2*job.padding, job.height + 2*job.padding);
 		paperShadow.setPosition(-job.width/2.0f - job.padding + 5, -job.height/2.0f - job.padding - 5);
@@ -105,11 +89,21 @@ public class GameScreen extends BaseScreen
 		
 		stage.addActor(paperBorder);
 		
+		Image paperPadding = new Image( getAtlasRegion("background_white") );
+		paperPadding.setSize(job.width + 2*job.padding, job.height + 2*job.padding);
+		paperPadding.setPosition(-job.width/2.0f - job.padding, -job.height/2.0f - job.padding);
+		
+		stage.addActor(paperPadding);
+		
+		Image paperPaddingBorder = new Image( getAtlasRegion("background_g30") );
+		paperPaddingBorder.setSize(job.width + 2, job.height + 2);
+		paperPaddingBorder.setPosition(-job.width/2.0f - 1, -job.height/2.0f - 1);
+		
+		stage.addActor(paperPaddingBorder);
+		
 		Image paper = new Image( getAtlasRegion("background_white") );
-		paper.setSize(job.width + 2*job.padding, job.height + 2*job.padding);
-		paper.setPosition(-job.width/2.0f - job.padding, -job.height/2.0f - job.padding);
-		
-		
+		paper.setSize(job.width, job.height);
+		paper.setPosition(-job.width/2.0f, -job.height/2.0f);
 		
 		stage.addActor(paper);
 		
@@ -134,6 +128,22 @@ public class GameScreen extends BaseScreen
 		
 		
 		createUi();
+		
+		
+		this.gestureManager = new GestureManager(this.stage, paragraph);
+		
+		gestureDetector = new GestureDetector(this.gestureManager);
+		
+		inputMultiplexer = new InputMultiplexer();
+		
+		inputMultiplexer.addProcessor(this.stage);
+		inputMultiplexer.addProcessor(this.uiStage);
+		inputMultiplexer.addProcessor(gestureDetector);
+		
+		Gdx.input.setInputProcessor(inputMultiplexer);
+		
+		CameraManager.getInstance().setCamera(this.stage.getCamera());
+		CameraManager.getInstance().showParagraph(paragraph);
 	}
 	
 	@Override
@@ -506,6 +516,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
+			paragraph.kerningModificator = 1f;
 		}
 	};
 	
@@ -513,6 +524,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
+			paragraph.kerningModificator = -1f;
 		}
 	};
 	
@@ -541,6 +553,8 @@ public class GameScreen extends BaseScreen
 			
 			camera.setVisible(false);
 			cameraLabel.setVisible(false);
+			
+			gestureManager.zoomType = ZoomType.KERNING;
 		}
 	};
 	
@@ -553,6 +567,8 @@ public class GameScreen extends BaseScreen
 			
 			camera.setVisible(true);
 			cameraLabel.setVisible(true);
+			
+			gestureManager.zoomType = ZoomType.CAMERA;
 		}
 	};
 	
@@ -562,6 +578,9 @@ public class GameScreen extends BaseScreen
 		{
 			indicatorStart.setVisible(false);
 			indicatorEnd.setVisible(false);
+			
+			gestureManager.zoomType = ZoomType.CAMERA;
+			gestureManager.lastDistance = 0;
 		}
 	};
 }

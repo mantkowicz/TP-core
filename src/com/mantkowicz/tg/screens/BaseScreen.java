@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
@@ -22,13 +23,12 @@ import com.mantkowicz.tg.enums.ActionType;
 import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.ActionManager;
-import com.mantkowicz.tg.stage.MyStage;
 
 public abstract class BaseScreen implements Screen 
 {
 	protected Main game;
 	
-	protected MyStage stage;
+	protected Stage stage;
 	protected ExtendViewport viewport;
 	
 	protected int screenWidth;
@@ -64,7 +64,7 @@ public abstract class BaseScreen implements Screen
 	{
 		this.viewport = new ExtendViewport(this.screenWidth, this.screenHeight);
 		
-		this.stage = new MyStage();	
+		this.stage = new Stage();	
 
 		this.stage.setViewport(this.viewport);
 		Gdx.input.setInputProcessor(this.stage);

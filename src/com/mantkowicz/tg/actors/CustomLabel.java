@@ -20,7 +20,7 @@ import com.mantkowicz.tg.managers.FontManager;
 public class CustomLabel
 {
 	Stage stage;
-	Job job;
+	public Job job;
 	
 	Label pattern;
 	
@@ -35,6 +35,8 @@ public class CustomLabel
 	Drawable markedBackground;
 	
 	public int longPressedId = -1;
+	
+	public float kerningModificator = 0f;
 	
 	public CustomLabel(Job job, Stage stage, Drawable markedBackground)
 	{
@@ -124,27 +126,25 @@ public class CustomLabel
 			}
 			else
 			{				
+				boolean modifyKerning = false;
 				//changing color
 				if( startId != -1 && l.id == startId )
 				{
 					l.getStyle().background = markedBackground;
 					
-					l.setWidth( l.getWidth() );
-					xa.set(ctr, xa.get(ctr) );
+					modifyKerning = true;
 				}
 				else if( endId != -1 && l.id == endId)
 				{
 					l.getStyle().background = markedBackground;
 					
-					l.setWidth( l.getWidth() );
-					xa.set(ctr, xa.get(ctr) );
+					modifyKerning = true;
 				}
 				else if (startId != -1 && endId != -1 && l.id > startId && l.id < endId )
 				{
 					l.getStyle().background = markedBackground;
 					
-					l.setWidth( l.getWidth() );
-					xa.set(ctr, xa.get(ctr) );
+					modifyKerning = true;
 				}
 				else
 				{
@@ -152,7 +152,11 @@ public class CustomLabel
 					//l.getStyle().fontColor = Color.BLACK;
 				}
 				
-				
+				if( modifyKerning )
+				{
+					l.setWidth( l.getWidth() + kerningModificator );
+					xa.set(ctr, xa.get(ctr) + kerningModificator );
+				}
 				
 				prevW += xa.get(ctr);//lab.getGlyphLayout().runs.first().xAdvances.get(ctr);
 				
@@ -166,6 +170,8 @@ public class CustomLabel
 				ctr++;
 			}
 		}
+		
+		 kerningModificator = 0f;
 	}
 	
 	public int getWordStart()
@@ -195,12 +201,7 @@ public class CustomLabel
 			id++;
 		}
 
-		if( id == this.glyphs.size )
-		{
-			id--;
-		}
-		
-		return id;
+		return --id;
 	}
 		
 	private void log(Object msg)
