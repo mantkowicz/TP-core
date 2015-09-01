@@ -1,14 +1,19 @@
 package com.mantkowicz.tg.screens;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Scaling;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.FontManager;
@@ -24,30 +29,47 @@ public class MenuScreen extends BaseScreen
 		super(game);
 		
 		manager = new HttpManager();
+		
+		clearWithGray = true;
 	}
 
 	@Override
 	protected void prepare() 
 	{
 		Table table = new Table();
-		table.debug();
+		table.background( (createImage("background_g30")).getDrawable() );
+				
+		table.setSize(1000, 0);
 		
-		table.setSize(1200, 0);
+		table.row().width(table.getWidth()).pad(25, 0, 25, 0);
+		table.add().width(table.getWidth()).colspan(4);
+		table.row();
 		
 		for(Job job : JobHandler.getInstance().jobs)
 		{
-			addJob(table, job, 30);
-			table.row().width(table.getWidth()).pad(50, 0, 50, 0);
+			addJob(table, job, 70);
+			table.row().width(table.getWidth()).pad(25, 0, 25, 0);
 			table.add().width(table.getWidth()).colspan(table.getColumns());
 			table.row();
 		}
 		
-		ScrollPane scrollPane = this.createScroll(table, 1220, 500, true);
-		scrollPane.debug();
+		ScrollPane scrollPane = this.createScroll(table, 1020, 630, true);
 		
-		setCenter(scrollPane, -300);
+		
+		setCenter(scrollPane, -350);
 		
 		this.stage.addActor(scrollPane);
+		
+		Image bar = createImage("background_g50", false);
+		bar.setSize(2000, 250);
+		bar.setPosition(-1000, 250);
+		
+		Image log = createImage("logo", false);
+		log.setScale(0.5f);
+		log.setPosition(-600, 300);
+		
+		this.stage.addActor(bar);
+		this.stage.addActor(log);
 	}
 
 	@Override
@@ -57,9 +79,110 @@ public class MenuScreen extends BaseScreen
 	
 	protected void addJob(Table table, final Job job, float rowHeight)
 	{
+		Table row = new Table();
+		row.background( (createImage("background_white")).getDrawable() );
+		
+		int c1=120, c2=150, c3=550, c4=120;
+		
+		row.add().width(c1).height(25);
+		row.add().width(c2).height(25);
+		row.add( label( "#" + String.valueOf( job.id ), true, true) ).width(c3).height(15).pad(10, 0, 0, 0);
+		row.add().width(c4).height(25);
+		row.row();
+				
+		row.add().width(c1).height(75);
+		row.add( createImage("user") ).width(c2).height(75);	
+		row.add( label( JobHandler.getInstance().getUser( job.usr_id ).login ) ).width(c3).height(75);
+		row.add().width(c4).height(75);
+		row.row();
+		
+		row.add().width(c1).height(75);	
+		row.add( createImage("clock") ).width(c2).height(75);	
+		row.add( label(String.valueOf(job.date_start).substring(0, 10)) ).width(c3).height(75);
+		row.add().width(c4).height(75);		
+		row.row();
+		
+		row.add().width(c1).height(75);	
+		row.add( createImage("star") ).width(c2).height(75);		
+		row.add( label( String.valueOf(job.points) ) ).width(c3).height(75);
+		row.add().width(c4).height(75);	
+		row.row();
+		
+		row.add().width(c1).height(75);	
+		row.add( createImage("badge") ).width(c2).height(75);		
+		row.add( label( JobHandler.getInstance().getFont(job.fnt_id).name ) ).width(c3).height(75);
+		row.add().width(c4).height(75);	
+		row.row();
+		
+		row.add().width(c1).height(1);	
+		row.add( createImage("background_g50", false) ).width(c2 + c3).height(1).colspan(2).pad(20,0,0,0);	
+		row.add().width(c4).height(1);	
+		row.row();
+				
+		//preparing content
+		String contentValue = job.content;
+		
+		if(contentValue.length() > 50)
+		{
+			contentValue = contentValue.substring(0, 50);
+		}
+				
+		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", 25);
+				
+		LabelStyle labelStyle = new LabelStyle();
+		labelStyle.font = font;
+		labelStyle.fontColor = Color.GRAY;
+		
+		Label contentLabel = new Label( contentValue, labelStyle);
+		contentLabel.setWrap(true);
+		//--content prepared
+		
+		row.add().width(c1).height(75);	
+		row.add( contentLabel ).width(c2 + c3).colspan(2);		
+		row.add().width(c4).height(75);	
+		row.row();
+		
+		
+		row.add().width(c1).height(1);	
+		row.add( createImage("background_g50", false) ).width(c2 + c3).height(1).colspan(2);	
+		row.add().width(c4).height(1);	
+		row.row();
+		
+		
+		Texture startTex = new Texture( Gdx.files.internal("startActive.png") );
+		startTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
+		Image startImg = new Image( startTex );
+		startImg.setScaling(Scaling.none);
+		startImg.setAlign(Align.right);
+		
+		startImg.addListener(
+				new ClickListener()
+				{
+					public void clicked(InputEvent event, float x, float y)
+					{
+						nextScreen = new GameScreen(game, job);
+						changeScreen = true;
+					}
+				}
+		);
+		
+		row.add().width(c1).height(75);	
+		row.add( startImg ).width(c2 + c3).height(1).colspan(2).height(75).pad(20,0,20,0);	
+		row.add().width(c4).height(75);	
+		row.row();
+		
+		
+		
+		
+		table.add(row);
+		
+		
+		
+		/*
 		table.add( new Label('#' + String.valueOf(job.id), game.skin, "default") ).width(100).height(rowHeight);
 		table.add().colspan(2).width(800).height(rowHeight);
-		table.add( new Label( JobHandler.getInstance().getUser(job.usr_id).login, game.skin, "default" ) ).width(300).height(rowHeight);
+		table.add( new Image( getAtlasRegion("user") ) ).width(300).height(rowHeight);
 		table.row();
 		
 		//--date start
@@ -155,5 +278,31 @@ public class MenuScreen extends BaseScreen
 		
 		table.add(choose).colspan(4).width(table.getWidth()).height(50);
 		table.row();
+		*/
+	}
+	
+	Label label(String txt, boolean small, boolean right)
+	{
+		Label l;
+		
+		if(small)
+			l = new Label( txt, game.skin, "small");
+		else
+			l = new Label( txt, game.skin, "default");
+		
+		if(right)
+			l.setAlignment(Align.right);
+
+		return l;
+	}
+	
+	Label label(String txt)
+	{
+		return label(txt, false, false);
+	}
+	
+	Label label(String txt, boolean small)
+	{
+		return label(txt, small, false);
 	}
 }

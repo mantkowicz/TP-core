@@ -57,7 +57,7 @@ public class SplashScreen extends BaseScreen
 		this.splashImage.addAction( ActionManager.getInstance().getAction(ActionType.SHOW) );
 		this.setCenter(this.splashImage, -50);
 		
-		this.label = new Label("Loading jobs list", this.game.skin, "default");// "italic");
+		this.label = new Label("Loading jobs list", this.game.skin, "medium");// "italic");
 		label.setWidth(1000);
 		label.setAlignment(Align.center);
 		this.setCenter(this.label, -150);

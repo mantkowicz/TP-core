@@ -17,7 +17,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.mantkowicz.tg.enums.ActionType;
 import com.mantkowicz.tg.logger.Logger;
@@ -150,9 +152,22 @@ public abstract class BaseScreen implements Screen
 	
 	protected Image createImage(String regionName)
 	{
+		return createImage(regionName, true);
+	}
+	
+	protected Image createImage(String regionName, boolean fixed)
+	{
 		AtlasRegion atlasRegion = this.getAtlasRegion(regionName);
 		
-		return new Image(atlasRegion);
+		Image image =  new Image(atlasRegion);
+		
+		if(fixed)
+		{
+			image.setScaling(Scaling.none);
+			image.setAlign(Align.center);
+		}
+		
+		return image;
 	}
 	
 	protected AtlasRegion getAtlasRegion(String regionName)
