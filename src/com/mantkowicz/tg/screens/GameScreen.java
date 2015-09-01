@@ -516,6 +516,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
+			paragraph.moveModificator = 1f;
 			paragraph.kerningModificator = 1f;
 		}
 	};

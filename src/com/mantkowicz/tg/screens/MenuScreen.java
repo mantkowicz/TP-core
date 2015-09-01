@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
@@ -41,7 +42,7 @@ public class MenuScreen extends BaseScreen
 				
 		table.setSize(1000, 0);
 		
-		table.row().width(table.getWidth()).pad(25, 0, 25, 0);
+		table.row().width(table.getWidth()).pad(75, 0, 50, 0);
 		table.add().width(table.getWidth()).colspan(4);
 		table.row();
 		
@@ -54,22 +55,30 @@ public class MenuScreen extends BaseScreen
 		}
 		
 		ScrollPane scrollPane = this.createScroll(table, 1020, 630, true);
-		
+		scrollPane.layout();
+		scrollPane.setScrollY( 80 );
 		
 		setCenter(scrollPane, -350);
 		
 		this.stage.addActor(scrollPane);
 		
 		Image bar = createImage("background_g50", false);
-		bar.setSize(2000, 250);
+		bar.setSize(2000, 150);
 		bar.setPosition(-1000, 250);
 		
-		Image log = createImage("logo", false);
-		log.setScale(0.5f);
-		log.setPosition(-600, 300);
+		Image log = createImage("logoShort", false);
+		log.setPosition(-600, 275);
+		
+		Label loggedAs = label("Zalogowany jako: mantkowicz", true);
+		loggedAs.setPosition(-470, log.getY() + (log.getHeight() - loggedAs.getHeight() )/2f);
+		
+		Image fake = createImage("fake", false);
+		fake.setPosition(280, log.getY() + (log.getHeight() - fake.getHeight() )/2f);
 		
 		this.stage.addActor(bar);
 		this.stage.addActor(log);
+		this.stage.addActor(fake);
+		this.stage.addActor(loggedAs);
 	}
 
 	@Override
@@ -86,7 +95,7 @@ public class MenuScreen extends BaseScreen
 		
 		row.add().width(c1).height(25);
 		row.add().width(c2).height(25);
-		row.add( label( "#" + String.valueOf( job.id ), true, true) ).width(c3).height(15).pad(10, 0, 0, 0);
+		row.add( label( "#" + String.valueOf( job.id ), true, true) ).width(c3).height(15).pad(25, 0, 0, 0);
 		row.add().width(c4).height(25);
 		row.row();
 				
@@ -109,7 +118,7 @@ public class MenuScreen extends BaseScreen
 		row.row();
 		
 		row.add().width(c1).height(75);	
-		row.add( createImage("badge") ).width(c2).height(75);		
+		row.add( createImage("fontName") ).width(c2).height(75);		
 		row.add( label( JobHandler.getInstance().getFont(job.fnt_id).name ) ).width(c3).height(75);
 		row.add().width(c4).height(75);	
 		row.row();
@@ -125,6 +134,7 @@ public class MenuScreen extends BaseScreen
 		if(contentValue.length() > 50)
 		{
 			contentValue = contentValue.substring(0, 50);
+			contentValue += "...";
 		}
 				
 		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", 25);
@@ -149,14 +159,9 @@ public class MenuScreen extends BaseScreen
 		row.row();
 		
 		
-		Texture startTex = new Texture( Gdx.files.internal("startActive.png") );
-		startTex.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		TextButton start = new TextButton("    START", game.skin, "button");
 		
-		Image startImg = new Image( startTex );
-		startImg.setScaling(Scaling.none);
-		startImg.setAlign(Align.right);
-		
-		startImg.addListener(
+		start.addListener(
 				new ClickListener()
 				{
 					public void clicked(InputEvent event, float x, float y)
@@ -168,7 +173,7 @@ public class MenuScreen extends BaseScreen
 		);
 		
 		row.add().width(c1).height(75);	
-		row.add( startImg ).width(c2 + c3).height(1).colspan(2).height(75).pad(20,0,20,0);	
+		row.add( start ).width(182).height(72).colspan(2).pad(14,c2 + c3 - 182,25,0).fill(false);	
 		row.add().width(c4).height(75);	
 		row.row();
 		

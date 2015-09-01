@@ -37,6 +37,7 @@ public class CustomLabel
 	public int longPressedId = -1;
 	
 	public float kerningModificator = 0f;
+	public float moveModificator = 0f;
 	
 	public CustomLabel(Job job, Stage stage, Drawable markedBackground)
 	{
