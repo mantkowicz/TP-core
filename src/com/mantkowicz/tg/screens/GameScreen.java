@@ -43,7 +43,7 @@ public class GameScreen extends BaseScreen
 	CustomLabel paragraph;
 	
 	Button document, camera, cancel;
-	Button shrinkButton, stretchButton, zoomInButton, zoomOutButton, cancelSmall;
+	Button shrinkButton, stretchButton, leftButton, rightButton, zoomInButton, zoomOutButton, cancelSmall;
 	Button menuShowButton, menuHideButton, homeButton, backButton, clearButton, settingsButton, uploadButton;
 	
 	Label cameraLabel, documentLabel, cancelLabel;
@@ -305,6 +305,8 @@ public class GameScreen extends BaseScreen
 		{
 			shrinkButton = new Button(this.game.skin, "shrink");
 			stretchButton = new Button(this.game.skin, "stretch");
+			leftButton = new Button(this.game.skin, "left");
+			rightButton = new Button(this.game.skin, "right");
 			zoomInButton = new Button(this.game.skin, "zoomIn");
 			zoomOutButton = new Button(this.game.skin, "zoomOut");
 			cancelSmall = new Button(this.game.skin, "cancelSmall");
@@ -312,18 +314,24 @@ public class GameScreen extends BaseScreen
 			cancelSmall.setPosition(225, 320);
 			stretchButton.setPosition(300, 320);
 			shrinkButton.setPosition(375, 320);
+			leftButton.setPosition(300, 250);
+			rightButton.setPosition(375, 250);
 			zoomInButton.setPosition(450, 320);
 			zoomOutButton.setPosition(525, 320);	
 			
 			cancelSmall.addListener(cancelListener);
 			stretchButton.addListener(stretchListener);
 			shrinkButton.addListener(shrinkListener);
+			leftButton.addListener(leftListener);
+			rightButton.addListener(rightListener);
 			zoomInButton.addListener(zoomInListener);
 			zoomOutButton.addListener(zoomOutListener);
 			
 			uiStage.addActor(cancelSmall);
 			uiStage.addActor(stretchButton);
 			uiStage.addActor(shrinkButton);
+			uiStage.addActor(leftButton);
+			uiStage.addActor(rightButton);
 			uiStage.addActor(zoomInButton);
 			uiStage.addActor(zoomOutButton);
 		}
@@ -517,8 +525,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			paragraph.offsetModificator = 1f;
-			//paragraph.kerningModificator = 1f;
+			paragraph.kerningModificator = 1f;
 		}
 	};
 	
@@ -527,6 +534,22 @@ public class GameScreen extends BaseScreen
 		public void clicked(InputEvent event, float x, float y)
 		{
 			paragraph.kerningModificator = -1f;
+		}
+	};
+	
+	ClickListener leftListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.offsetModificator = -1f;
+		}
+	};
+	
+	ClickListener rightListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.offsetModificator = 1f;
 		}
 	};
 	
@@ -581,8 +604,19 @@ public class GameScreen extends BaseScreen
 			indicatorStart.setVisible(false);
 			indicatorEnd.setVisible(false);
 			
-			gestureManager.zoomType = ZoomType.CAMERA;
-			gestureManager.lastDistance = 0;
+			if( game.isMobile )
+			{
+				document.setVisible(false);
+				documentLabel.setVisible(false);
+				
+				camera.setVisible(true);
+				cameraLabel.setVisible(true);
+				
+				gestureManager.zoomType = ZoomType.CAMERA;
+				
+				gestureManager.lastDistance = 0;
+				gestureManager.lastDeltaX = 0;
+			}
 		}
 	};
 }

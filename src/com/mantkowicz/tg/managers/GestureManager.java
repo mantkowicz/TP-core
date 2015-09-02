@@ -12,6 +12,8 @@ public class GestureManager implements GestureListener
 {
 	public float initialDistance=0, distance=0, lastDistance=0;
 	
+	public float lastDeltaX;
+	
 	private float initialScale = 1;
 	
 	public ZoomType zoomType;
@@ -49,13 +51,17 @@ public class GestureManager implements GestureListener
 
 	@Override
 	public boolean fling(float velocityX, float velocityY, int button) {
-		if( CameraManager.getInstance().isInBoundingBox() )
+		
+		if( zoomType == ZoomType.CAMERA )
 		{
-			CameraManager.getInstance().moveTo(this.stage.getCamera().position.x - velocityX * 0.5f, this.stage.getCamera().position.y + velocityY * 0.5f);
-		}
-		else
-		{
-			stage.getCamera().position.set( CameraManager.getInstance().moveToBoundingBox( stage.getCamera().position ) );
+			if( CameraManager.getInstance().isInBoundingBox() )
+			{
+				CameraManager.getInstance().moveTo(this.stage.getCamera().position.x - velocityX * 0.5f, this.stage.getCamera().position.y + velocityY * 0.5f);
+			}
+			else
+			{
+				stage.getCamera().position.set( CameraManager.getInstance().moveToBoundingBox( stage.getCamera().position ) );
+			}
 		}
 		
 		return false;
@@ -64,14 +70,31 @@ public class GestureManager implements GestureListener
 	@Override
 	public boolean pan(float x, float y, float deltaX, float deltaY) {
 
-		if( CameraManager.getInstance().isInBoundingBox() )
+		if( zoomType == ZoomType.CAMERA )
 		{
-			stage.getCamera().position.x -= deltaX;
-			stage.getCamera().position.y += deltaY;
+			if( CameraManager.getInstance().isInBoundingBox() )
+			{
+				stage.getCamera().position.x -= deltaX;
+				stage.getCamera().position.y += deltaY;
+			}
 		}
 		else
 		{
+			if(lastDeltaX == 0)
+			{
+				lastDeltaX = x;
+			}
 			
+			if( x > lastDeltaX + 10 )
+			{
+				paragraph.offsetModificator = 0.2f;
+				lastDeltaX = x;
+			}
+			else if( x < lastDeltaX - 10 )
+			{
+				paragraph.offsetModificator = -0.2f;
+				lastDeltaX = x;
+			}
 		}
 		
 		return false;

@@ -210,17 +210,20 @@ public class CustomLabel
 		
 		for(Label l : glyphs)
 		{
+			//Logger.log(this, "LABELKA: " + l.getText() + " prevW = " + prevW + " p+xa = " + (prevW+l.xAdvance) + " jobW = " + (job.width - job.padding) );
+			
+			if(l.hardNewLine || l.newLine)
+			{
+				prevW = 0;
+			}
+			
 			if( prevW + l.xAdvance > job.width - job.padding )
 			{
 				glyphs.get( getWordStart(l.id) ).newLine = true;
+				
 				prevW = 0;
 			}
-			
-			if(l.hardNewLine)
-			{
-				prevW = 0;
-			}
-			
+						
 			prevW += l.xAdvance;
 		}
 	}
@@ -239,7 +242,7 @@ public class CustomLabel
 			
 			id--;
 		}
-		
+				
 		return id + 1;
 	}
 	
