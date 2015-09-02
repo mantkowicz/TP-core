@@ -9,6 +9,12 @@ import com.mantkowicz.tg.logger.Logger;
 public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label 
 {
 	public int id;
+	
+	public float xAdvance = 0f;
+	public float xOffset = 0f;
+	
+	public boolean hardNewLine = false;
+	public boolean newLine = false;
 	public boolean longPressed = false;
 	
 	public Label(CharSequence text, LabelStyle style) 

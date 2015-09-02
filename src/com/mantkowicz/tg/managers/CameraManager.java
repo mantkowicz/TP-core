@@ -3,7 +3,10 @@ package com.mantkowicz.tg.managers;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.mantkowicz.tg.actors.CustomLabel;
+import com.mantkowicz.tg.json.Job;
+import com.sun.corba.se.impl.ior.NewObjectKeyTemplateBase;
 
 public class CameraManager
 {
@@ -21,8 +24,10 @@ public class CameraManager
 	private float targetWidth;
 	private boolean zoom;
 	
+	private Job job;
+	
 	private CameraManager()
-	{
+	{		
 		this.camera = new OrthographicCamera();
 		
 		this.target = new Vector2();
@@ -35,6 +40,11 @@ public class CameraManager
 	public void setCamera(Camera camera)
 	{
 		this.camera = (OrthographicCamera)camera;
+	}
+	
+	public void setCameraBoundingBox(Job job)
+	{
+		this.job = job;
 	}
 	
 	public void moveTo(float x, float y)
@@ -86,14 +96,22 @@ public class CameraManager
 	public void step()
 	{		
 		//MOVE
-		if(this.move && (camera.position.x != this.target.x || camera.position.y != this.target.y))
+		if( isInBoundingBox() )
 		{
-			this.camera.position.x += (-camera.position.x + this.target.x ) * 0.1f;
-			this.camera.position.y += (-camera.position.y + this.target.y ) * 0.1f;
+			if(this.move && (camera.position.x != this.target.x || camera.position.y != this.target.y))
+			{
+				this.camera.position.x += (-camera.position.x + this.target.x ) * 0.1f;
+				this.camera.position.y += (-camera.position.y + this.target.y ) * 0.1f;
+			}
+			if(this.move && Math.abs(camera.position.x - this.target.x) < 0.2f && Math.abs(camera.position.y - this.target.y) < 0.2f)
+			{
+				stopMoving(this.target);
+			}
 		}
-		if(this.move && Math.abs(camera.position.x - this.target.x) < 0.2f && Math.abs(camera.position.y - this.target.y) < 0.2f)
+		else
 		{
-			stopMoving(this.target);
+			this.move = false;
+			this.camera.position.set( moveToBoundingBox() );
 		}
 		
 		//ZOOM
@@ -112,5 +130,43 @@ public class CameraManager
 		{
 			this.camera.zoom += 0.02;
 		}
+	}
+	
+	public boolean isInBoundingBox()
+	{
+		return ( camera.position.x <= job.width/2f + 50 && camera.position.x >= -job.width/2f - 50 && camera.position.y >= -job.height/2f - 50 && camera.position.y <= job.height/2f + 50 );
+	}
+
+	public Vector3 moveToBoundingBox() 
+	{
+		return moveToBoundingBox(this.camera.position);
+	}
+	
+	public Vector3 moveToBoundingBox(Vector3 position) 
+	{
+		Vector3 newPosition = new Vector3();
+		
+		newPosition.set(position);
+		
+		if( newPosition.x < -job.width/2f - 50 )
+		{
+			newPosition.x = -job.width/2f - 50;
+		}
+		else if( newPosition.x > job.width/2f + 50)
+		{
+			newPosition.x = job.width/2f + 50;
+		}
+		
+		if( newPosition.y < -job.height/2f - 50)
+		{
+			newPosition.y = -job.height/2f - 50;
+		}
+		else if( newPosition.y > job.height/2f + 50 )
+		{
+			newPosition.y = job.height/2f + 50;
+		}
+		
+		return newPosition;
+		
 	}
 }

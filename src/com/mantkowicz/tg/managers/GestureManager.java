@@ -49,15 +49,30 @@ public class GestureManager implements GestureListener
 
 	@Override
 	public boolean fling(float velocityX, float velocityY, int button) {
-		CameraManager.getInstance().moveTo(this.stage.getCamera().position.x - velocityX * 0.5f, this.stage.getCamera().position.y + velocityY * 0.5f);
+		if( CameraManager.getInstance().isInBoundingBox() )
+		{
+			CameraManager.getInstance().moveTo(this.stage.getCamera().position.x - velocityX * 0.5f, this.stage.getCamera().position.y + velocityY * 0.5f);
+		}
+		else
+		{
+			stage.getCamera().position.set( CameraManager.getInstance().moveToBoundingBox( stage.getCamera().position ) );
+		}
+		
 		return false;
 	}
 
 	@Override
 	public boolean pan(float x, float y, float deltaX, float deltaY) {
 
-		stage.getCamera().position.x -= deltaX;
-		stage.getCamera().position.y += deltaY;
+		if( CameraManager.getInstance().isInBoundingBox() )
+		{
+			stage.getCamera().position.x -= deltaX;
+			stage.getCamera().position.y += deltaY;
+		}
+		else
+		{
+			
+		}
 		
 		return false;
 	}

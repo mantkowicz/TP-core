@@ -76,7 +76,7 @@ public abstract class BaseScreen implements Screen
 
 	@Override
 	public void render(float delta) 
-	{		
+	{
 		this.handleInput();		
 		this.handleChangingScreen();
 		

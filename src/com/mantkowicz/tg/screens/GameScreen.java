@@ -143,6 +143,7 @@ public class GameScreen extends BaseScreen
 		Gdx.input.setInputProcessor(inputMultiplexer);
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
+		CameraManager.getInstance().setCameraBoundingBox(job);
 		CameraManager.getInstance().showParagraph(paragraph);
 	}
 	
@@ -516,8 +517,8 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			paragraph.moveModificator = 1f;
-			paragraph.kerningModificator = 1f;
+			paragraph.offsetModificator = 1f;
+			//paragraph.kerningModificator = 1f;
 		}
 	};
 	
