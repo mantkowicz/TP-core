@@ -17,7 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.mantkowicz.tg.actors.CustomLabel;
+import com.mantkowicz.tg.actors.Paragraph;
 import com.mantkowicz.tg.actors.Indicator;
 import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.enums.IndicatorType;
@@ -40,14 +40,17 @@ public class GameScreen extends BaseScreen
 		
 	Job job;
 	
-	CustomLabel paragraph;
+	Paragraph paragraph;
 	
 	Button document, camera, cancel;
 	Button shrinkButton, stretchButton, leftButton, rightButton, zoomInButton, zoomOutButton, cancelSmall;
-	Button menuShowButton, menuHideButton, homeButton, backButton, clearButton, settingsButton, uploadButton;
+	Button menuShowButton, menuHideButton, homeButton, clearButton, settingsButton, uploadButton;
 	
 	Label cameraLabel, documentLabel, cancelLabel;
 	HashMap<Button, Label> buttonLabels;
+	
+	Button indentPlusButton, indentMinusButton, interlinePlusButton, interlineMinusButton, cancelEditButton;
+	Label indentLabel, interlineLabel, indentValueLabel, interlineValueLabel;
 	
 	Indicator indicatorStart;
 	Indicator indicatorEnd;
@@ -109,7 +112,7 @@ public class GameScreen extends BaseScreen
 		
 		Image markedBackground = new Image( getAtlasRegion("background_blue") );
 		
-		paragraph = new CustomLabel(job, stage, markedBackground.getDrawable());
+		paragraph = new Paragraph(job, stage, markedBackground.getDrawable());
 		
 		paragraph.addToStage();
 		
@@ -255,10 +258,63 @@ public class GameScreen extends BaseScreen
 	
 	private void createUi()
 	{
+		indentPlusButton = new Button(this.game.skin, "plus");
+		indentMinusButton = new Button(this.game.skin, "minus");
+		interlinePlusButton = new Button(this.game.skin, "plus");
+		interlineMinusButton = new Button(this.game.skin, "minus");
+		cancelEditButton = new Button(this.game.skin, "cancel");
+		
+		indentMinusButton.setPosition(-550, -320);
+		indentPlusButton.setPosition(-330, -320);
+		interlineMinusButton.setPosition(-10, -320);
+		interlinePlusButton.setPosition(200, -320);
+		cancelEditButton.setPosition(450, -320);
+		
+		indentLabel = new Label("Wciêcie akapitu ", game.skin, "mediumBlack");
+		indentLabel.setPosition(-500, -380);
+		
+		indentValueLabel = new Label(paragraph.job.indent+"px", game.skin, "mediumBlack");
+		indentValueLabel.setPosition(-550 + (320 - indentValueLabel.getWidth())/2f, -300);
+		
+		interlineLabel = new Label("Wysokoœæ interlinii ", game.skin, "mediumBlack");
+		interlineLabel.setPosition(10, -380);
+		
+		interlineValueLabel = new Label(paragraph.job.lineHeight+"px", game.skin, "mediumBlack");
+		interlineValueLabel.setPosition(-10 + (320 - interlineValueLabel.getWidth())/2f, -300);
+		
+		indentLabel.setVisible(false);
+		indentMinusButton.setVisible(false);
+		indentPlusButton.setVisible(false);
+		interlineLabel.setVisible(false);
+		interlineMinusButton.setVisible(false);
+		interlinePlusButton.setVisible(false);
+		
+		indentValueLabel.setVisible(false);
+		interlineValueLabel.setVisible(false);
+		
+		cancelEditButton.setVisible(false);
+		
+		uiStage.addActor(indentPlusButton);
+		uiStage.addActor(indentMinusButton);
+		uiStage.addActor(interlinePlusButton);
+		uiStage.addActor(interlineMinusButton);
+		uiStage.addActor(cancelEditButton);
+		uiStage.addActor(indentLabel);
+		uiStage.addActor(indentValueLabel);
+		uiStage.addActor(interlineLabel);
+		uiStage.addActor(interlineValueLabel);
+		
+		//---
+		
+		indentPlusButton.addListener(indentPlusListener);
+		indentMinusButton.addListener(indentMinusListener);
+		interlinePlusButton.addListener(interlinePlusListener);
+		interlineMinusButton.addListener(interlineMinusListener);
+		cancelEditButton.addListener(cancelEditListener);
+		
 		menuShowButton = new Button(this.game.skin, "menuShow");
 		menuHideButton = new Button(this.game.skin, "menuHide");
 		homeButton = new Button(this.game.skin, "home");
-		backButton = new Button(this.game.skin, "back");
 		clearButton = new Button(this.game.skin, "clear");
 		settingsButton = new Button(this.game.skin, "settings");
 		uploadButton = new Button(this.game.skin, "upload");
@@ -266,7 +322,6 @@ public class GameScreen extends BaseScreen
 		menuShowButton.addListener(menuShowListener);
 		menuHideButton.addListener(menuHideListener);
 		homeButton.addListener(homeListener);
-		backButton.addListener(backListener);
 		clearButton.addListener(clearListener);
 		settingsButton.addListener(settingsListener);
 		uploadButton.addListener(uploadListener);
@@ -274,21 +329,18 @@ public class GameScreen extends BaseScreen
 		menuShowButton.setPosition(450, -350);
 		menuHideButton.setPosition(450, -350);
 		homeButton.setPosition(-550, -800);
-		backButton.setPosition(-350, -800);
-		clearButton.setPosition(-150, -800);
-		settingsButton.setPosition(50, -800);
+		clearButton.setPosition(-280, -800);
+		settingsButton.setPosition(-10, -800);
 		uploadButton.setPosition(250, -800);
 		
 		menuHideButton.setVisible(false);
 		
 		createButtonLabel(homeButton, "powrót\n do menu");
-		createButtonLabel(backButton, "cofnij\n akcjê");
 		createButtonLabel(clearButton, "zacznij\n od nowa");
 		createButtonLabel(settingsButton, "ustawienia");
 		createButtonLabel(uploadButton, "wyœlij\n rozwi¹zanie");
 		
 		uiStage.addActor(buttonLabels.get(homeButton));
-		uiStage.addActor(buttonLabels.get(backButton));
 		uiStage.addActor(buttonLabels.get(clearButton));
 		uiStage.addActor(buttonLabels.get(settingsButton));
 		uiStage.addActor(buttonLabels.get(uploadButton));
@@ -296,7 +348,6 @@ public class GameScreen extends BaseScreen
 		uiStage.addActor(menuShowButton);
 		uiStage.addActor(menuHideButton);
 		uiStage.addActor(homeButton);
-		uiStage.addActor(backButton);
 		uiStage.addActor(clearButton);
 		uiStage.addActor(settingsButton);
 		uiStage.addActor(uploadButton);
@@ -439,26 +490,47 @@ public class GameScreen extends BaseScreen
 		return action;
 	}
 	
+	private void hideMenu()
+	{
+		if(menuShowButton != null) menuShowButton.setVisible(false);
+		if(menuHideButton != null) menuHideButton.setVisible(true);
+		
+		homeButton.addAction( createButtonInAction(homeButton, 0) );
+		clearButton.addAction( createButtonInAction(clearButton, 0.02f) );
+		settingsButton.addAction( createButtonInAction(settingsButton, 0.03f) );
+		uploadButton.addAction( createButtonInAction(uploadButton, 0.04f) );
+		
+		buttonLabels.get(homeButton).addAction( createLabelInAction( buttonLabels.get(homeButton) ) );
+		buttonLabels.get(clearButton).addAction( createLabelInAction( buttonLabels.get(clearButton) ) );
+		buttonLabels.get(settingsButton).addAction( createLabelInAction( buttonLabels.get(settingsButton) ) );
+		buttonLabels.get(uploadButton).addAction( createLabelInAction( buttonLabels.get(uploadButton) ) );
+		
+		checkMenuActions = true;
+	}
+	
+	private void showMenu()
+	{
+		if(menuHideButton != null) menuHideButton.setVisible(false);
+		if(menuShowButton != null) menuShowButton.setVisible(true);
+		
+		homeButton.addAction( createButtonOutAction(homeButton, 0.08f) );
+		clearButton.addAction( createButtonOutAction(clearButton, 0.04f) );
+		settingsButton.addAction( createButtonOutAction(settingsButton, 0.02f) );
+		uploadButton.addAction( createButtonOutAction(uploadButton, 0) );	
+		
+		buttonLabels.get(homeButton).addAction( createLabelOutAction() );
+		buttonLabels.get(clearButton).addAction( createLabelOutAction() );
+		buttonLabels.get(settingsButton).addAction( createLabelOutAction() );
+		buttonLabels.get(uploadButton).addAction( createLabelOutAction() );
+		
+		checkMenuActions = true;
+	}
+	
 	ClickListener menuShowListener = new ClickListener() 
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			if(menuShowButton != null) menuShowButton.setVisible(false);
-			if(menuHideButton != null) menuHideButton.setVisible(true);
-			
-			homeButton.addAction( createButtonInAction(homeButton, 0) );
-			backButton.addAction( createButtonInAction(backButton, 0.01f) );
-			clearButton.addAction( createButtonInAction(clearButton, 0.02f) );
-			settingsButton.addAction( createButtonInAction(settingsButton, 0.03f) );
-			uploadButton.addAction( createButtonInAction(uploadButton, 0.04f) );
-			
-			buttonLabels.get(homeButton).addAction( createLabelInAction( buttonLabels.get(homeButton) ) );
-			buttonLabels.get(backButton).addAction( createLabelInAction( buttonLabels.get(backButton) ) );
-			buttonLabels.get(clearButton).addAction( createLabelInAction( buttonLabels.get(clearButton) ) );
-			buttonLabels.get(settingsButton).addAction( createLabelInAction( buttonLabels.get(settingsButton) ) );
-			buttonLabels.get(uploadButton).addAction( createLabelInAction( buttonLabels.get(uploadButton) ) );
-			
-			checkMenuActions = true;
+			hideMenu();
 		}
 	};
 	
@@ -466,22 +538,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			if(menuHideButton != null) menuHideButton.setVisible(false);
-			if(menuShowButton != null) menuShowButton.setVisible(true);
-			
-			homeButton.addAction( createButtonOutAction(homeButton, 0.08f) );
-			backButton.addAction( createButtonOutAction(backButton, 0.06f) );
-			clearButton.addAction( createButtonOutAction(clearButton, 0.04f) );
-			settingsButton.addAction( createButtonOutAction(settingsButton, 0.02f) );
-			uploadButton.addAction( createButtonOutAction(uploadButton, 0) );	
-			
-			buttonLabels.get(homeButton).addAction( createLabelOutAction() );
-			buttonLabels.get(backButton).addAction( createLabelOutAction() );
-			buttonLabels.get(clearButton).addAction( createLabelOutAction() );
-			buttonLabels.get(settingsButton).addAction( createLabelOutAction() );
-			buttonLabels.get(uploadButton).addAction( createLabelOutAction() );
-			
-			checkMenuActions = true;
+			showMenu();
 		}
 	};
 	
@@ -504,6 +561,10 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
+			indicatorStart.setVisible(false);
+			indicatorEnd.setVisible(false);
+			
+			paragraph.restart();
 		}
 	};
 	
@@ -511,6 +572,21 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
+			showMenu();
+			
+			indentLabel.setVisible(true);
+			indentMinusButton.setVisible(true);
+			indentPlusButton.setVisible(true);
+			interlineLabel.setVisible(true);
+			interlineMinusButton.setVisible(true);
+			interlinePlusButton.setVisible(true);
+			
+			indentValueLabel.setVisible(true);
+			interlineValueLabel.setVisible(true);
+			
+			cancelEditButton.setVisible(true);
+			
+			menuShowButton.setVisible(false);
 		}
 	};
 	
@@ -619,4 +695,68 @@ public class GameScreen extends BaseScreen
 			}
 		}
 	};
+	
+	ClickListener indentPlusListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.job.indent++;
+			
+			indentValueLabel.setText(paragraph.job.indent+"px");
+			indentValueLabel.setPosition(-550 + (320 - indentValueLabel.getWidth())/2f, -300);
+		}
+	};
+	
+	ClickListener indentMinusListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			if( paragraph.job.indent > 0 ) paragraph.job.indent--;
+			
+			indentValueLabel.setText(paragraph.job.indent+"px");
+			indentValueLabel.setPosition(-550 + (320 - indentValueLabel.getWidth())/2f, -300);
+		}
+	};
+	
+	ClickListener interlinePlusListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.job.lineHeight++;
+			
+			interlineValueLabel.setText(paragraph.job.lineHeight+"px");
+			interlineValueLabel.setPosition(-10 + (320 - interlineValueLabel.getWidth())/2f, -300);
+		}
+	};
+	
+	ClickListener interlineMinusListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			if( paragraph.job.lineHeight >= paragraph.job.font_size ) paragraph.job.lineHeight--;
+			
+			interlineValueLabel.setText(paragraph.job.lineHeight+"px");
+			interlineValueLabel.setPosition(-10 + (320 - interlineValueLabel.getWidth())/2f, -300);
+		}
+	};
+	
+	ClickListener cancelEditListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			indentLabel.setVisible(false);
+			indentMinusButton.setVisible(false);
+			indentPlusButton.setVisible(false);
+			interlineLabel.setVisible(false);
+			interlineMinusButton.setVisible(false);
+			interlinePlusButton.setVisible(false);
+			
+			indentValueLabel.setVisible(false);
+			interlineValueLabel.setVisible(false);
+			
+			cancelEditButton.setVisible(false);
+			
+			menuShowButton.setVisible(true);
+		}
+	};	
 }

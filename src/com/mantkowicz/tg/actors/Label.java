@@ -52,5 +52,4 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label
 			return false;
 		}
 	};
-
 }

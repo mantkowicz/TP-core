@@ -17,9 +17,12 @@ import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.managers.FontManager;
 
-public class CustomLabel
+public class Paragraph
 {
 	Stage stage;
+	
+	private Job job_backup;
+	
 	public Job job;
 	
 	Label pattern;
@@ -36,14 +39,31 @@ public class CustomLabel
 	public float kerningModificator = 0f;
 	public float offsetModificator = 0f;
 	
-	public CustomLabel(Job job, Stage stage, Drawable markedBackground)
+	public Paragraph(Job job, Stage stage, Drawable markedBackground)
 	{
 		this.stage = stage;
-		this.job = job;
 		
-		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", job.font_size);
+		this.job_backup = job;
+		this.job = this.job_backup.clone();
 		
 		this.markedBackground = markedBackground;
+		
+		restart();
+	}
+	
+	public void restart()
+	{
+		this.job = this.job_backup.clone();
+		
+		if( glyphs != null )
+		{
+			for(Label glyph : glyphs)
+			{
+				glyph.remove();
+			}
+		}
+		
+		BitmapFont font = FontManager.getInstance().generateFont("files/fonts/" + job.fnt_id + "/font.ttf", job.font_size);
 		
 		LabelStyle ls = new LabelStyle();
 		ls.font = font;
@@ -73,8 +93,6 @@ public class CustomLabel
 				gl.add(gr.glyphs.get(i));
 			}
 		}
-		
-		//this.stage.addActor(this.lab);
 		
 		glyphs = new Array<Label>();
 		
@@ -117,7 +135,7 @@ public class CustomLabel
 	public void addToStage()
 	{
 		float prevW = 0;
-		float row = glyphs.first().getHeight();
+		float row = job.lineHeight; //glyphs.first().getHeight();
 		
 		handleLongPress();		
 		updateNewLines();
@@ -126,9 +144,11 @@ public class CustomLabel
 		{		
 			if( l.newLine )
 			{
-				row += pattern.getStyle().font.getLineHeight();
+				row += job.lineHeight; //pattern.getStyle().font.getLineHeight();
 				prevW = 0;
 			}
+			
+			if( l.id == 0 ) prevW += job.indent;
 			
 			boolean modifyKerning = false;
 			//changing color
@@ -169,10 +189,8 @@ public class CustomLabel
 			
 			l.setX( pattern.getX() + prevW + l.xOffset); //gl.get(ctr).xoffset); //lab.getGlyphLayout().runs.first().glyphs.get(ctr).xoffset );
 			l.setY( pattern.getY() + pattern.getHeight() - row );
-						
-			l.toBack();
-			//l.setTouchable(Touchable.disabled);
-			stage.addActor(l);	
+							
+			stage.addActor(l);				
 		}
 		
 		 kerningModificator = 0f;

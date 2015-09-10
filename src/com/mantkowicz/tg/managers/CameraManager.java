@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.mantkowicz.tg.actors.CustomLabel;
+import com.mantkowicz.tg.actors.Paragraph;
 import com.mantkowicz.tg.json.Job;
 import com.sun.corba.se.impl.ior.NewObjectKeyTemplateBase;
 
@@ -75,7 +75,7 @@ public class CameraManager
 		this.zoom = false;
 	}
 	
-	public void showParagraph(CustomLabel paragraph)
+	public void showParagraph(Paragraph paragraph)
 	{
 		if( paragraph.job.height > paragraph.job.width )
 		{

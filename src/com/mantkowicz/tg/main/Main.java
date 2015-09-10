@@ -26,7 +26,8 @@ public class Main extends Game
 		this.resourcesManager.load("skin.atlas", TextureAtlas.class);
 		this.resourcesManager.finishLoading();
 		
-		this.skin = new Skin( Gdx.files.internal("skin.json"), this.resourcesManager.get("skin.atlas", TextureAtlas.class) );
+		this.skin = new Skin( Gdx.files.internal("skin.json") );
+		//this.skin = new Skin( Gdx.files.internal("skin.json"), this.resourcesManager.get("skin.atlas", TextureAtlas.class) );
 		
 		SplashScreen splash = new SplashScreen( this );
 		

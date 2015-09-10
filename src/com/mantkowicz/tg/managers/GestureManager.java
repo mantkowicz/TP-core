@@ -5,7 +5,7 @@ import com.badlogic.gdx.input.GestureDetector.GestureListener;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.mantkowicz.tg.actors.CustomLabel;
+import com.mantkowicz.tg.actors.Paragraph;
 import com.mantkowicz.tg.enums.ZoomType;
 
 public class GestureManager implements GestureListener 
@@ -19,9 +19,9 @@ public class GestureManager implements GestureListener
 	public ZoomType zoomType;
 	
 	Stage stage;
-	CustomLabel paragraph;
+	Paragraph paragraph;
 	
-	public GestureManager(Stage stage, CustomLabel paragraph)
+	public GestureManager(Stage stage, Paragraph paragraph)
 	{
 		this.stage = stage;
 		this.paragraph = paragraph;

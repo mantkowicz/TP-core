@@ -79,7 +79,7 @@ public class SplashScreen extends BaseScreen
 				final Response response = json.fromJson(Response.class, manager.getResponse());
 				
 				final JobResult result = json.fromJson(JobResult.class, response.value);
-								
+					
 				JobHandler.getInstance().refreshJobs(result.value);
 				
 				JobHandler.getInstance().printJobs();
@@ -156,8 +156,8 @@ public class SplashScreen extends BaseScreen
 					{
 						if(manager.state == HttpState.IDLE)
 						{
+							log(fonts.peek().name);
 							fonts.peek().download(manager);
-							
 						}
 						else if( manager.state == HttpState.FINISHED && !manager.isResultNull() )
 						{

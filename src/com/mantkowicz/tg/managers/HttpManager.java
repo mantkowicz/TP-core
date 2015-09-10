@@ -18,6 +18,8 @@ public class HttpManager implements HttpResponseListener
 	
 	boolean getByte;
 	
+	String currentUrl = "";
+	
 	public HttpManager()
 	{
 		state = HttpState.IDLE;
@@ -34,6 +36,8 @@ public class HttpManager implements HttpResponseListener
 		byteResult = null;
 		
 		request.setMethod(Net.HttpMethods.GET);
+		
+		currentUrl = url; //for debug only
 		
 		request.setUrl(url);
 		Gdx.net.sendHttpRequest(request, this);
@@ -73,6 +77,8 @@ public class HttpManager implements HttpResponseListener
 		if( httpResponse.getStatus().getStatusCode() != 200 )
 		{
 			state = HttpState.ERROR;
+			Logger.log(this, "ERROR code: " + httpResponse.getStatus().getStatusCode());
+			Logger.log(this, "--request : " + currentUrl);
 		}
 		else
 		{
