@@ -13,6 +13,9 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label
 	public float xAdvance = 0f;
 	public float xOffset = 0f;
 	
+	public float xAdvance_start = 0f;
+	public float xOffset_start = 0f;
+	
 	public boolean hardNewLine = false;
 	public boolean newLine = false;
 	public boolean longPressed = false;

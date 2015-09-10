@@ -54,7 +54,28 @@ public class Paragraph
 	public void restart()
 	{
 		this.job = this.job_backup.clone();
+				
+		refresh(true);
+	}
+	
+	public void increaseFontSize()
+	{
+		this.job.font_size++;
 		
+		if( this.job.lineHeight < this.job.font_size ) this.job.lineHeight = this.job.font_size;
+		
+		refresh(false);
+	}
+	
+	public void decreaseFontSize()
+	{
+		this.job.font_size--;
+		
+		refresh(false);
+	}
+	
+	private void refresh(boolean restart)
+	{
 		if( glyphs != null )
 		{
 			for(Label glyph : glyphs)
@@ -79,6 +100,7 @@ public class Paragraph
 		this.pattern.setPosition(-job.width/2.0f, -job.height/2.0f);
 		
 		FloatArray xa = new FloatArray();
+		FloatArray xo = new FloatArray();
 		Array<Glyph> gl = new Array<Glyph>();
 		
 		for(GlyphRun gr : pattern.getGlyphLayout().runs)
@@ -91,6 +113,15 @@ public class Paragraph
 			for(int i = 0; i < gr.glyphs.size; i++)
 			{
 				gl.add(gr.glyphs.get(i));
+			}
+		}
+		
+		if( !restart )
+		{
+			for(int i = 0; i < glyphs.size; i++)
+			{
+				xa.set(i, xa.get(i) + glyphs.get(i).xAdvance - glyphs.get(i).xAdvance_start);
+				xo.add(glyphs.get(i).xOffset - glyphs.get(i).xOffset_start);
 			}
 		}
 		
@@ -120,7 +151,12 @@ public class Paragraph
 			tempLabel.id = i;
 			
 			tempLabel.xAdvance = xa.get(ctr);
+			tempLabel.xAdvance_start = xa.get(ctr);
+			
 			tempLabel.xOffset = gl.get(ctr).xoffset;
+			tempLabel.xOffset_start = gl.get(ctr).xoffset;
+			
+			if(xo.size > 0) tempLabel.xOffset += xo.get(ctr);
 			
 			tempLabel.setUserObject("Original");
 			
@@ -131,7 +167,7 @@ public class Paragraph
 			ctr++;
 		}
 	}
-	
+		
 	public void addToStage()
 	{
 		float prevW = 0;
@@ -226,23 +262,22 @@ public class Paragraph
 			}
 		}
 		
-		for(Label l : glyphs)
+		for(int i = 0; i < glyphs.size; i++)
 		{
-			//Logger.log(this, "LABELKA: " + l.getText() + " prevW = " + prevW + " p+xa = " + (prevW+l.xAdvance) + " jobW = " + (job.width - job.padding) );
+			Label l = glyphs.get(i);
 			
-			if(l.hardNewLine || l.newLine)
-			{
-				prevW = 0;
-			}
-			
-			if( prevW + l.xAdvance > job.width - job.padding )
-			{
-				glyphs.get( getWordStart(l.id) ).newLine = true;
-				
-				prevW = 0;
-			}
-						
 			prevW += l.xAdvance;
+			
+			if( prevW > job.width - job.padding * 2 )
+			{
+				if( l.getText().chars[0] != ' ' )
+				{
+					glyphs.get( getWordStart(l.id) ).newLine = true;
+					
+					prevW = 0;
+					i = getWordStart(l.id);
+				}
+			}
 		}
 	}
 	
@@ -254,7 +289,7 @@ public class Paragraph
 	public int getWordStart(int id)
 	{		
 		while(id >= 0 )
-		{
+		{			
 			if(this.glyphs.get(id).getText().chars[0] == ' ') break;
 			if(this.glyphs.get(id).getText().chars[0] == '\n') break;
 			

@@ -49,8 +49,8 @@ public class GameScreen extends BaseScreen
 	Label cameraLabel, documentLabel, cancelLabel;
 	HashMap<Button, Label> buttonLabels;
 	
-	Button indentPlusButton, indentMinusButton, interlinePlusButton, interlineMinusButton, cancelEditButton;
-	Label indentLabel, interlineLabel, indentValueLabel, interlineValueLabel;
+	Button indentPlusButton, indentMinusButton, interlinePlusButton, interlineMinusButton, fontSizePlusButton, fontSizeMinusButton, cancelEditButton;
+	Label indentLabel, interlineLabel, indentValueLabel, interlineValueLabel, fontSizeLabel, fontSizeValueLabel;
 	
 	Indicator indicatorStart;
 	Indicator indicatorEnd;
@@ -262,25 +262,43 @@ public class GameScreen extends BaseScreen
 		indentMinusButton = new Button(this.game.skin, "minus");
 		interlinePlusButton = new Button(this.game.skin, "plus");
 		interlineMinusButton = new Button(this.game.skin, "minus");
+		fontSizePlusButton = new Button(this.game.skin, "plus");
+		fontSizeMinusButton = new Button(this.game.skin, "minus");
 		cancelEditButton = new Button(this.game.skin, "cancel");
 		
+		indentPlusButton.setSize(75, 75);
+		indentMinusButton.setSize(75, 75);
+		interlinePlusButton.setSize(75, 75);
+		interlineMinusButton.setSize(75, 75);
+		fontSizePlusButton.setSize(75, 75);
+		fontSizeMinusButton.setSize(75, 75);
+		cancelEditButton.setSize(75, 75);
+		
 		indentMinusButton.setPosition(-550, -320);
-		indentPlusButton.setPosition(-330, -320);
-		interlineMinusButton.setPosition(-10, -320);
-		interlinePlusButton.setPosition(200, -320);
+		indentPlusButton.setPosition(-550 + 2*75, -320);
+		interlineMinusButton.setPosition(-550 + 5*75 - 25, -320);
+		interlinePlusButton.setPosition(-550 + 7*75 - 25, -320);
+		fontSizeMinusButton.setPosition(-550 + 10*75 - 50, -320);
+		fontSizePlusButton.setPosition(-550 + 12*75 - 50, -320);
 		cancelEditButton.setPosition(450, -320);
 		
-		indentLabel = new Label("Wciêcie akapitu ", game.skin, "mediumBlack");
-		indentLabel.setPosition(-500, -380);
+		indentLabel = new Label("Wciêcie akapitu ", game.skin, "small");
+		indentLabel.setPosition(indentMinusButton.getX() + (225 - indentLabel.getWidth())/2f, -370);
 		
-		indentValueLabel = new Label(paragraph.job.indent+"px", game.skin, "mediumBlack");
-		indentValueLabel.setPosition(-550 + (320 - indentValueLabel.getWidth())/2f, -300);
+		indentValueLabel = new Label(paragraph.job.indent+"px", game.skin, "small");
+		indentValueLabel.setPosition(indentMinusButton.getX() + (225 - indentValueLabel.getWidth())/2f, -300);
 		
-		interlineLabel = new Label("Wysokoœæ interlinii ", game.skin, "mediumBlack");
-		interlineLabel.setPosition(10, -380);
+		interlineLabel = new Label("Wysokoœæ interlinii ", game.skin, "small");
+		interlineLabel.setPosition(interlineMinusButton.getX() + (225 - interlineLabel.getWidth())/2f, -370);
 		
-		interlineValueLabel = new Label(paragraph.job.lineHeight+"px", game.skin, "mediumBlack");
-		interlineValueLabel.setPosition(-10 + (320 - interlineValueLabel.getWidth())/2f, -300);
+		interlineValueLabel = new Label(paragraph.job.lineHeight+"px", game.skin, "small");
+		interlineValueLabel.setPosition(interlineMinusButton.getX() + (225 - interlineValueLabel.getWidth())/2f, -300);
+		
+		fontSizeLabel = new Label("Stopieñ pisma ", game.skin, "small");
+		fontSizeLabel.setPosition(fontSizeMinusButton.getX() + (225 - fontSizeLabel.getWidth())/2f, -370);
+		
+		fontSizeValueLabel = new Label(paragraph.job.font_size+"px", game.skin, "small");
+		fontSizeValueLabel.setPosition(fontSizeMinusButton.getX() + (225 - fontSizeValueLabel.getWidth())/2f, -300);
 		
 		indentLabel.setVisible(false);
 		indentMinusButton.setVisible(false);
@@ -288,9 +306,13 @@ public class GameScreen extends BaseScreen
 		interlineLabel.setVisible(false);
 		interlineMinusButton.setVisible(false);
 		interlinePlusButton.setVisible(false);
+		fontSizeMinusButton.setVisible(false);
+		fontSizePlusButton.setVisible(false);
+		fontSizeLabel.setVisible(false);
 		
 		indentValueLabel.setVisible(false);
 		interlineValueLabel.setVisible(false);
+		fontSizeValueLabel.setVisible(false);
 		
 		cancelEditButton.setVisible(false);
 		
@@ -298,11 +320,15 @@ public class GameScreen extends BaseScreen
 		uiStage.addActor(indentMinusButton);
 		uiStage.addActor(interlinePlusButton);
 		uiStage.addActor(interlineMinusButton);
+		uiStage.addActor(fontSizePlusButton);
+		uiStage.addActor(fontSizeMinusButton);
 		uiStage.addActor(cancelEditButton);
 		uiStage.addActor(indentLabel);
 		uiStage.addActor(indentValueLabel);
 		uiStage.addActor(interlineLabel);
 		uiStage.addActor(interlineValueLabel);
+		uiStage.addActor(fontSizeLabel);
+		uiStage.addActor(fontSizeValueLabel);
 		
 		//---
 		
@@ -310,6 +336,8 @@ public class GameScreen extends BaseScreen
 		indentMinusButton.addListener(indentMinusListener);
 		interlinePlusButton.addListener(interlinePlusListener);
 		interlineMinusButton.addListener(interlineMinusListener);
+		fontSizePlusButton.addListener(fontSizePlusListener);
+		fontSizeMinusButton.addListener(fontSizeMinusListener);
 		cancelEditButton.addListener(cancelEditListener);
 		
 		menuShowButton = new Button(this.game.skin, "menuShow");
@@ -580,7 +608,11 @@ public class GameScreen extends BaseScreen
 			interlineLabel.setVisible(true);
 			interlineMinusButton.setVisible(true);
 			interlinePlusButton.setVisible(true);
+			fontSizeMinusButton.setVisible(true);
+			fontSizePlusButton.setVisible(true);
+			fontSizeLabel.setVisible(true);
 			
+			fontSizeValueLabel.setVisible(true);
 			indentValueLabel.setVisible(true);
 			interlineValueLabel.setVisible(true);
 			
@@ -703,7 +735,7 @@ public class GameScreen extends BaseScreen
 			paragraph.job.indent++;
 			
 			indentValueLabel.setText(paragraph.job.indent+"px");
-			indentValueLabel.setPosition(-550 + (320 - indentValueLabel.getWidth())/2f, -300);
+			indentValueLabel.setPosition(indentMinusButton.getX() + (225 - indentValueLabel.getWidth())/2f, -300);
 		}
 	};
 	
@@ -714,7 +746,7 @@ public class GameScreen extends BaseScreen
 			if( paragraph.job.indent > 0 ) paragraph.job.indent--;
 			
 			indentValueLabel.setText(paragraph.job.indent+"px");
-			indentValueLabel.setPosition(-550 + (320 - indentValueLabel.getWidth())/2f, -300);
+			indentValueLabel.setPosition(indentMinusButton.getX() + (225 - indentValueLabel.getWidth())/2f, -300);
 		}
 	};
 	
@@ -725,7 +757,7 @@ public class GameScreen extends BaseScreen
 			paragraph.job.lineHeight++;
 			
 			interlineValueLabel.setText(paragraph.job.lineHeight+"px");
-			interlineValueLabel.setPosition(-10 + (320 - interlineValueLabel.getWidth())/2f, -300);
+			interlineValueLabel.setPosition(interlineMinusButton.getX() + (225 - interlineValueLabel.getWidth())/2f, -300);
 		}
 	};
 	
@@ -736,7 +768,7 @@ public class GameScreen extends BaseScreen
 			if( paragraph.job.lineHeight >= paragraph.job.font_size ) paragraph.job.lineHeight--;
 			
 			interlineValueLabel.setText(paragraph.job.lineHeight+"px");
-			interlineValueLabel.setPosition(-10 + (320 - interlineValueLabel.getWidth())/2f, -300);
+			interlineValueLabel.setPosition(interlineMinusButton.getX() + (225 - interlineValueLabel.getWidth())/2f, -300);
 		}
 	};
 	
@@ -750,7 +782,11 @@ public class GameScreen extends BaseScreen
 			interlineLabel.setVisible(false);
 			interlineMinusButton.setVisible(false);
 			interlinePlusButton.setVisible(false);
+			fontSizeMinusButton.setVisible(false);
+			fontSizePlusButton.setVisible(false);
+			fontSizeLabel.setVisible(false);
 			
+			fontSizeValueLabel.setVisible(false);
 			indentValueLabel.setVisible(false);
 			interlineValueLabel.setVisible(false);
 			
@@ -759,4 +795,24 @@ public class GameScreen extends BaseScreen
 			menuShowButton.setVisible(true);
 		}
 	};	
+	
+	ClickListener fontSizePlusListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.increaseFontSize();
+			fontSizeValueLabel.setText(paragraph.job.font_size+"px");
+			fontSizeValueLabel.setPosition(fontSizeMinusButton.getX() + (225 - fontSizeValueLabel.getWidth())/2f, -300);
+		}
+	};
+	
+	ClickListener fontSizeMinusListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.decreaseFontSize();
+			fontSizeValueLabel.setText(paragraph.job.font_size+"px");
+			fontSizeValueLabel.setPosition(fontSizeMinusButton.getX() + (225 - fontSizeValueLabel.getWidth())/2f, -300);
+		}
+	};
 }
