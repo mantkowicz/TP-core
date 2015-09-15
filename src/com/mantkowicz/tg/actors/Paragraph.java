@@ -1,12 +1,17 @@
 package com.mantkowicz.tg.actors;
 
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout.GlyphRun;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.Affine2;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
@@ -155,13 +160,15 @@ public class Paragraph
 			
 			tempLabel.xOffset = gl.get(ctr).xoffset;
 			tempLabel.xOffset_start = gl.get(ctr).xoffset;
+			tempLabel.glyph = gl.get(ctr);
+			tempLabel.lineHeight = job.lineHeight;
 			
 			if(xo.size > 0) tempLabel.xOffset += xo.get(ctr);
 			
 			tempLabel.setUserObject("Original");
 			
 			tempLabel.setAlignment(Align.center);
-			
+						
 			glyphs.add( tempLabel );
 			
 			ctr++;

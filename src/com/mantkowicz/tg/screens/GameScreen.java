@@ -42,6 +42,8 @@ public class GameScreen extends BaseScreen
 	
 	Paragraph paragraph;
 	
+	Image paper;
+	
 	Button document, camera, cancel;
 	Button shrinkButton, stretchButton, leftButton, rightButton, zoomInButton, zoomOutButton, cancelSmall;
 	Button menuShowButton, menuHideButton, homeButton, clearButton, settingsButton, uploadButton;
@@ -104,7 +106,7 @@ public class GameScreen extends BaseScreen
 		
 		stage.addActor(paperPaddingBorder);
 		
-		Image paper = new Image( getAtlasRegion("background_white") );
+		paper = new Image( getAtlasRegion("background_white") );
 		paper.setSize(job.width, job.height);
 		paper.setPosition(-job.width/2.0f, -job.height/2.0f);
 		
@@ -205,13 +207,7 @@ public class GameScreen extends BaseScreen
 				zoomModeControlRemoved = true;
 			}
 		}
-		
-		
-		if( Gdx.input.isKeyJustPressed( Keys.P) )
-		{
-			ScreenShotManager.saveScreenshot();
-		}
-		
+				
 		if( Gdx.input.isKeyJustPressed( Keys.R) )
 		{
 			indicatorStart.setVisible(true);
@@ -626,6 +622,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
+			log( ScreenShotManager.getScreenshot( paper, paragraph.glyphs ) );
 		}
 	};
 	

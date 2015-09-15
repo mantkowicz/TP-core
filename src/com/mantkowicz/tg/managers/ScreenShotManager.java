@@ -1,62 +1,95 @@
 package com.mantkowicz.tg.managers;
 
-import java.nio.ByteBuffer;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.PixmapIO;
-import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Base64Coder;
+import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.logger.Logger;
 
-public class ScreenShotManager {
-
-	static void log(Object msg)
-	{
-		Logger.log(1, msg);
-	}
-	
-    private static int counter = 1;
-    public static void saveScreenshot(){
-        try{
-            FileHandle fh;
-            do{
-                fh = Gdx.files.local("files/screenshot" + counter++ + ".png");
-            }while (fh.exists());
-            Pixmap pixmap = getScreenshot(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-            
-                        
-            Color color = new Color();
-            Color.rgba8888ToColor(color, pixmap.getPixel(0, 0));
-            
-            log( "(" + color.r + ", " + color.g + ", " + color.b + ") " );
-            
-            
-            //PixmapIO.writePNG(fh, pixmap);
-            pixmap.dispose();
-        }catch (Exception e){           
-        }
-    }
-
-    private static Pixmap getScreenshot(int x, int y, int w, int h, boolean yDown){
-        final Pixmap pixmap = ScreenUtils.getFrameBufferPixmap(x, y, w, h);
-
-        if (yDown) {
-            // Flip the pixmap upside down
-            ByteBuffer pixels = pixmap.getPixels();
-            int numBytes = w * h * 4;
-            byte[] lines = new byte[numBytes];
-            int numBytesPerLine = w * 4;
-            for (int i = 0; i < h; i++) {
-                pixels.position((h - i - 1) * numBytesPerLine);
-                pixels.get(lines, i * numBytesPerLine, numBytesPerLine);
-            }
-            pixels.clear();
-            pixels.put(lines);
-            pixels.clear();
-        }
-
-        return pixmap;
+public class ScreenShotManager 
+{
+    public static String getScreenshot(Actor area, Array<Label> glyphs)
+    {
+    	int width = (int)area.getWidth();
+    	int height = (int)area.getHeight();
+    	
+    	
+    	int[][] pd = new int[width][height];
+    	
+    	for(int i = 0; i < pd.length; i++)
+    		for(int j = 0; j < pd[i].length; j++)
+    			pd[i][j]=0;
+    	
+    	for(Label l : glyphs)
+    	{    		
+    		int x = (int) (l.getX() - area.getX() );
+    		int y =  height - (int) ( l.getY() - area.getY() + l.glyph.yoffset + l.glyph.height ) - (int) l.lineHeight;
+    		    		
+    		int[][] pixels = l.getPixels();
+    		
+    		for(int i = 0; i < l.glyph.width; i++)
+    			for(int j = 0; j < l.glyph.height; j++)
+    				pd[x + i][y + j] = pixels[i][j];
+    	}
+    	/*
+    	Label l = glyphs.first();
+        
+        int[][] pixels = l.getPixels();
+                
+        for(int i = 0; i < pixels.length; i++)
+    		for(int j = 0; j < pixels[i].length; j++)
+    			pd[i][j]=pixels[i][j];
+    	
+    	
+    	*/
+    	
+    	Pixmap pixmap = new Pixmap(width, height, Format.RGB888);
+        
+    	for(int x = 0; x < width; x++)
+        	for(int y = 0; y < height; y++)
+        		//if(pd[x][y] == 0) pixmap.drawPixel(x, y, Color.WHITE.toIntBits());
+        		//else pixmap.drawPixel(x, y, Color.BLACK.toIntBits());
+        	{
+        		pixmap.drawPixel(x, y, pd[x][y]);
+        	}
+    	
+    	
+    	/* 
+        for(int x = 0; x < width; x++)
+        	for(int y = 0; y < height; y++)
+        		pixmap.drawPixel(x, y, Color.WHITE.toIntBits());
+        
+        
+        for(int x = 0; x < width; x++)
+        	for(int y = 0; y < height; y++)
+        		if(x == y) pixmap.drawPixel(x, y, Color.BLACK.toIntBits());
+        */
+        
+		//pixmap.drawPixel(x, y, Color.BLACK.toIntBits());
+        
+                
+        /*for(Label l : glyphs)
+        {
+        	int x = (int) (l.getX() - area.getX());
+        	int y = (int) (l.getY() - area.getY());
+        	
+        	int[][] pixels = l.getPixels();
+        	
+        	for(int i = 0; i < pixels.length; i++)
+        		for(int j = 0; j < pixels[i].length; j++)
+        			if( pixels[i][j] != 0 ) Logger.log(1, "x = " + i + ", y = " + j);//pixmap.drawPixel(i,j, Color.BLACK.toIntBits());
+        }*/
+        
+        FileHandle fh = Gdx.files.local("files/temp.png");
+        PixmapIO.writePNG(fh, pixmap);
+        pixmap.dispose();
+        
+        return String.valueOf( Base64Coder.encode( fh.readBytes() ) ); 
     }
 }
