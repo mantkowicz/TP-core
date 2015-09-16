@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.mantkowicz.tg.enums.ActionType;
-import com.mantkowicz.tg.logger.Logger;
 
 public class ActionManager
 {
@@ -72,7 +71,6 @@ public class ActionManager
 	{
 		if(!(this.actions.get(actionType) instanceof AlphaAction)) 
 		{
-			Logger.log(this, "Remember of action type!");
 			Gdx.app.exit();
 		}
 		

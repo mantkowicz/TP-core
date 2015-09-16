@@ -1,22 +1,15 @@
 package com.mantkowicz.tg.screens;
 
-import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.mantkowicz.tg.main.Main;
 
 public class ResultScreen extends BaseScreen
-{
-	int result = 0;
-	int counter = 0;
-	
-	Label label;
-	Label tap;
-	
-	boolean labelHidden = true;
-	
-	private AlphaAction showAction;
-	private AlphaAction hideAction;
-	
+{	
 	public ResultScreen(Main game)
 	{
 		super(game);
@@ -25,59 +18,78 @@ public class ResultScreen extends BaseScreen
 	@Override
 	protected void prepare()
 	{
-		label = new Label(result + "%", this.game.skin, "big");
-		setCenter(label, -50);
+		Texture texture = new Texture( Gdx.files.local("files/temp.png") );
+		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
-		stage.addActor(label);
+		Image image = new Image( texture );
 		
-		tap = new Label("Tap to go back to menu", this.game.skin, "italic");
-		setCenter(tap, -150);
+		if( image.getWidth() < 600 && image.getHeight() < 760)
+		{
+			//pass
+		}
+		else if( image.getWidth() < 600 && image.getHeight() > 760)
+		{
+			image.setScale( 760 / image.getHeight() );
+		}
+		else if( image.getWidth() > 600 && image.getHeight() < 760)
+		{
+			image.setScale( 600 / image.getWidth() );
+		}
+		else
+		{
+			image.setScale( (image.getWidth() > image.getHeight()) ? (600 / image.getWidth()) : (760 / image.getHeight())  );
+		}
 		
-		tap.getColor().a = 0;
+		image.setPosition(-640 + (640-image.getWidth()*image.getScaleX())/2f, -400 + (800 - image.getHeight()*image.getScaleY())/2f);
 		
-		showAction = new AlphaAction();
-		showAction.setAlpha(1);
-		showAction.setDuration(1);
+		Table table = new Table();
+		table.setSize(600, 600);
+		table.setPosition(0, -300);
 		
-		hideAction = new AlphaAction();
-		hideAction.setAlpha(0);
-		hideAction.setDuration(1);
+		table.add( createLabel("Twoje wyniki:", "big") ).colspan(2).width(table.getWidth() - 40).pad(20);
+		table.row();
 		
-		this.nextScreen = new MenuScreen( this.game );
-		stage.addListener(nextScreenListener);
+		table.add( createRightLabel("kryterium nr 1:", "medium") ).width(table.getWidth()/2 - 50).pad(0, 50, 20, 0);
+		table.add( createLabel("12", "medium") ).width(table.getWidth()/2 - 10).pad(0, 10, 20, 0);
+		table.row();
+		
+		table.add( createRightLabel("kryterium nr 1:", "medium") ).width(table.getWidth()/2 - 50).pad(0, 50, 20, 0);
+		table.add( createLabel("12", "medium") ).width(table.getWidth()/2 - 10).pad(0, 10, 20, 0);
+		table.row();
+		
+		table.add( createRightLabel("kryterium nr 1:", "medium") ).width(table.getWidth()/2 - 50).pad(0, 50, 20, 0);
+		table.add( createLabel("12", "medium") ).width(table.getWidth()/2 - 10).pad(0, 10, 20, 0);
+		table.row();
+		
+		table.add( createRightLabel("kryterium nr 1:", "medium") ).width(table.getWidth()/2 - 50).pad(0, 50, 20, 0);
+		table.add( createLabel("12", "medium") ).width(table.getWidth()/2 - 10).pad(0, 10, 20, 0);
+		table.row();
+		
+		table.add( createRightLabel("kryterium nr 1:", "medium") ).width(table.getWidth()/2 - 50).pad(0, 50, 20, 0);
+		table.add( createLabel("12", "medium") ).width(table.getWidth()/2 - 10).pad(0, 10, 20, 0);
+		table.row();
+		
+		table.add( createRightLabel("kryterium nr 1:", "medium") ).width(table.getWidth()/2 - 50).pad(0, 50, 20, 0);
+		table.add( createLabel("12", "medium") ).width(table.getWidth()/2 - 10).pad(0, 10, 20, 0);
+		table.row();
+		
+		table.add( createRightLabel("kryterium nr 1:", "medium") ).width(table.getWidth()/2 - 50).pad(0, 50, 20, 0);
+		table.add( createLabel("12", "medium") ).width(table.getWidth()/2 - 10).pad(0, 10, 20, 0);
+		table.row();
+		
+		table.add( createRightLabel("kryterium nr 1:", "medium") ).width(table.getWidth()/2 - 50).pad(0, 50, 20, 0);
+		table.add( createLabel("12", "medium") ).width(table.getWidth()/2 - 10).pad(0, 10, 20, 0);
+		table.row();
+		
+		table.debug();
+		
+		stage.addActor(image);
+		stage.addActor(table);
 	}
 
 	@Override
 	protected void step()
 	{
-		counter++;
-		
-		if(counter < 90)
-		{
-			result++;
-			
-			label.setText(result + "%");
-			setCenter(label, -50);
-		}
-		if( counter > 90 )
-		{
-			labelHidden = false;
-			
-			this.stage.addActor(tap);
-		}
-		
-		if( !labelHidden && tap.getActions().size <= 0 )
-		{
-			if( tap.getColor().a == 0 )
-			{
-				showAction.reset();
-				tap.addAction(showAction);				
-			}
-			else if(tap.getColor().a == 1)
-			{
-				hideAction.reset();
-				tap.addAction(hideAction);
-			}
-		}
+		stage.getBatch().setColor(Color.BLUE);
 	}
 }

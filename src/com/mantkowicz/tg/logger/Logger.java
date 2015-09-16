@@ -1,6 +1,7 @@
 package com.mantkowicz.tg.logger;
 
 import java.util.HashMap;
+
 import com.mantkowicz.tg.enums.LogLevel;
 
 public class Logger

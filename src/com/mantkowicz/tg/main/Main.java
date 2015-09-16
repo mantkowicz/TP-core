@@ -4,9 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.screens.SplashScreen;
 
 public class Main extends Game 
@@ -18,10 +16,14 @@ public class Main extends Game
 	
 	public AssetManager resourcesManager;
 	public Skin skin;
+	
+	public int usr_id; //to simulate being logged in
 		
 	@Override
 	public void create()
 	{
+		this.usr_id = 0;
+		
 		this.resourcesManager = new AssetManager();
 		this.resourcesManager.load("skin.atlas", TextureAtlas.class);
 		this.resourcesManager.finishLoading();

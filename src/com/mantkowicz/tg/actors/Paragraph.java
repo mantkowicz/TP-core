@@ -1,15 +1,9 @@
 package com.mantkowicz.tg.actors;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout.GlyphRun;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.Affine2;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -19,7 +13,6 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.mantkowicz.tg.json.Job;
-import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.managers.FontManager;
 
 public class Paragraph
@@ -321,11 +314,6 @@ public class Paragraph
 		return --id;
 	}
 		
-	private void log(Object msg)
-	{
-		Logger.log(this, msg);
-	}
-	
 	ClickListener listener = new ClickListener() 
 	{
 		public void clicked(InputEvent event, float x, float y)

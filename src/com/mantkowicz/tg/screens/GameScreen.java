@@ -1,5 +1,8 @@
 package com.mantkowicz.tg.screens;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
@@ -16,16 +19,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
-import com.mantkowicz.tg.actors.Paragraph;
 import com.mantkowicz.tg.actors.Indicator;
 import com.mantkowicz.tg.actors.Label;
+import com.mantkowicz.tg.actors.Paragraph;
 import com.mantkowicz.tg.enums.IndicatorType;
 import com.mantkowicz.tg.enums.ZoomType;
 import com.mantkowicz.tg.json.Job;
+import com.mantkowicz.tg.json.Offer;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
 import com.mantkowicz.tg.managers.GestureManager;
+import com.mantkowicz.tg.managers.RateManager;
 import com.mantkowicz.tg.managers.ScreenShotManager;
 
 public class GameScreen extends BaseScreen
@@ -59,10 +65,14 @@ public class GameScreen extends BaseScreen
 	
 	boolean checkMenuActions = false;
 	boolean zoomModeControlRemoved = true;
+	
+	Main game;
 
 	public GameScreen(Main game, Job job)
 	{
 		super(game);
+		
+		this.game = game;
 		
 		clearWithGray = true;
 		
@@ -174,7 +184,7 @@ public class GameScreen extends BaseScreen
 			paragraph.endId = indicatorEnd.getCurrentId();
 			indicatorStart.setMax(paragraph.endId);
 			
-			if(game.isMobile && zoomModeControlRemoved)
+			if(Main.isMobile && zoomModeControlRemoved)
 			{
 				uiStage.addActor(camera);
 				uiStage.addActor(cameraLabel);
@@ -193,7 +203,7 @@ public class GameScreen extends BaseScreen
 			paragraph.startId = -1;
 			paragraph.endId = -1;
 			
-			if(game.isMobile && !zoomModeControlRemoved)
+			if(Main.isMobile && !zoomModeControlRemoved)
 			{
 				camera.remove();
 				cameraLabel.remove();
@@ -597,7 +607,7 @@ public class GameScreen extends BaseScreen
 		public void clicked(InputEvent event, float x, float y)
 		{
 			showMenu();
-			
+					
 			indentLabel.setVisible(true);
 			indentMinusButton.setVisible(true);
 			indentPlusButton.setVisible(true);
@@ -622,7 +632,23 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			log( ScreenShotManager.getScreenshot( paper, paragraph.glyphs ) );
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			
+			Offer offer = new Offer();
+			
+			offer.id = 0; //to bedzie i tak nadane automatycznie
+			offer.job_id = job.id;
+			offer.usr_id = game.usr_id;
+			offer.date = df.format( new Date() );
+			offer.img = ScreenShotManager.getScreenshot( paper, paragraph.glyphs );
+			offer.win = 0;
+			offer.score = RateManager.getInstance().rate(paragraph);
+			
+			Json json = new Json();
+			log( json.toJson(offer) );
+			
+			nextScreen = new ResultScreen(game);
+			changeScreen = true;
 		}
 	};
 	
@@ -709,7 +735,7 @@ public class GameScreen extends BaseScreen
 			indicatorStart.setVisible(false);
 			indicatorEnd.setVisible(false);
 			
-			if( game.isMobile )
+			if( Main.isMobile )
 			{
 				document.setVisible(false);
 				documentLabel.setVisible(false);

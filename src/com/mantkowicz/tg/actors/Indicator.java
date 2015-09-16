@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.mantkowicz.tg.enums.IndicatorType;
-import com.mantkowicz.tg.logger.Logger;
 
 public class Indicator extends Actor
 {	

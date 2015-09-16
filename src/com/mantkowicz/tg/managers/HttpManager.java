@@ -6,7 +6,6 @@ import com.badlogic.gdx.Net.HttpRequest;
 import com.badlogic.gdx.Net.HttpResponse;
 import com.badlogic.gdx.Net.HttpResponseListener;
 import com.mantkowicz.tg.enums.HttpState;
-import com.mantkowicz.tg.logger.Logger;
 
 public class HttpManager implements HttpResponseListener 
 {	
@@ -77,8 +76,6 @@ public class HttpManager implements HttpResponseListener
 		if( httpResponse.getStatus().getStatusCode() != 200 )
 		{
 			state = HttpState.ERROR;
-			Logger.log(this, "ERROR code: " + httpResponse.getStatus().getStatusCode());
-			Logger.log(this, "--request : " + currentUrl);
 		}
 		else
 		{

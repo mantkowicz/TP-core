@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
 import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -216,6 +217,19 @@ public abstract class BaseScreen implements Screen
         scroller.setSize(width, height);
         
         return scroller;
+	}
+	
+	protected Label createLabel(String text, String type)
+	{
+		return new Label(text, game.skin, type);
+	}
+	
+	protected Label createRightLabel(String text, String type)
+	{
+		Label label = new Label(text, game.skin, type);
+		label.setAlignment(Align.right);
+		
+		return label; 
 	}
 	
 	protected void setCenter(Actor actor, float y)

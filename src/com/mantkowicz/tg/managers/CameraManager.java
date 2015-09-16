@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.mantkowicz.tg.actors.Paragraph;
 import com.mantkowicz.tg.json.Job;
-import com.sun.corba.se.impl.ior.NewObjectKeyTemplateBase;
 
 public class CameraManager
 {

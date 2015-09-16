@@ -1,6 +1,5 @@
 package com.mantkowicz.tg.json;
 
-import java.util.HashMap;
 
 public class User 
 {

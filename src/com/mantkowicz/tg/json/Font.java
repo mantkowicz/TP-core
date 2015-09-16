@@ -2,7 +2,6 @@ package com.mantkowicz.tg.json;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
-import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.managers.HttpManager;
 
 public class Font 

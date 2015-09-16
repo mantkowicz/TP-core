@@ -1,7 +1,6 @@
 package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Align;
@@ -11,8 +10,6 @@ import com.mantkowicz.tg.enums.ActionType;
 import com.mantkowicz.tg.enums.HttpState;
 import com.mantkowicz.tg.enums.ScreenPhase;
 import com.mantkowicz.tg.json.Font;
-import com.mantkowicz.tg.json.Job;
-import com.mantkowicz.tg.json.User;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.ActionManager;
 import com.mantkowicz.tg.managers.HttpManager;
@@ -31,10 +28,7 @@ public class SplashScreen extends BaseScreen
 	private Label label;
 	
 	private HttpManager manager;
-	
-	private Dict dict;
-	private Array<String> fontsToDownload;
-	
+		
 	private Array<Font> fonts;
 	private float fontsCount;
 		
@@ -49,8 +43,6 @@ public class SplashScreen extends BaseScreen
 	@Override
 	protected void prepare()
 	{		
-		fontsToDownload = new Array<String>();
-		
 		this.splashImage = this.createImage( "logo" );
 		
 		this.splashImage.getColor().a = 0;
@@ -82,8 +74,6 @@ public class SplashScreen extends BaseScreen
 					
 				JobHandler.getInstance().refreshJobs(result.value);
 				
-				JobHandler.getInstance().printJobs();
-				
 				phase = ScreenPhase.DOWNLOADING_USERS_LIST;
 				
 				manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getUsers");
@@ -103,8 +93,6 @@ public class SplashScreen extends BaseScreen
 				UserResult result = json.fromJson(UserResult.class, response.value);
 								
 				JobHandler.getInstance().refreshUsers(result.value);
-				
-				JobHandler.getInstance().printUsers();
 				
 				phase = ScreenPhase.DOWNLOADING_FONTS_LIST;
 				
@@ -128,7 +116,6 @@ public class SplashScreen extends BaseScreen
 				fontsCount = fonts.size;
 				
 				JobHandler.getInstance().refreshFonts(result.value);
-				JobHandler.getInstance().printFonts();
 				
 				phase = ScreenPhase.DOWNLOADING_FONTS;
 			}
