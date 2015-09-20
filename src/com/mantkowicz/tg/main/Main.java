@@ -22,7 +22,7 @@ public class Main extends Game
 	@Override
 	public void create()
 	{
-		this.usr_id = 0;
+		this.usr_id = 2;
 		
 		this.resourcesManager = new AssetManager();
 		this.resourcesManager.load("skin.atlas", TextureAtlas.class);

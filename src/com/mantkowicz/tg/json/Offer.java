@@ -6,7 +6,7 @@ public class Offer
 	public int job_id;
 	public int usr_id;
 	public String date;
-	public String img;
+	public String html;
 	public int win;
 	public int score;
 }

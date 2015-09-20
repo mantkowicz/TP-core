@@ -37,7 +37,7 @@ public class SplashScreen extends BaseScreen
 		super(game);
 		
 		manager = new HttpManager();
-		manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getJobs&ignore_counter=1");
+		manager.getString("http://www.kerning.mantkowicz.pl/ws.php?action=getJobs&ignore_counter=1");
 	}
 	
 	@Override
@@ -76,7 +76,7 @@ public class SplashScreen extends BaseScreen
 				
 				phase = ScreenPhase.DOWNLOADING_USERS_LIST;
 				
-				manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getUsers");
+				manager.getString("http://www.kerning.mantkowicz.pl/ws.php?action=getUsers");
 			}
 		}
 		
@@ -96,7 +96,7 @@ public class SplashScreen extends BaseScreen
 				
 				phase = ScreenPhase.DOWNLOADING_FONTS_LIST;
 				
-				manager.get("http://www.kerning.mantkowicz.pl/ws.php?action=getFonts");
+				manager.getString("http://www.kerning.mantkowicz.pl/ws.php?action=getFonts");
 			}
 		}
 

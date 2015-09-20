@@ -24,13 +24,16 @@ import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.mantkowicz.tg.actors.Indicator;
 import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.actors.Paragraph;
+import com.mantkowicz.tg.enums.HttpState;
 import com.mantkowicz.tg.enums.IndicatorType;
+import com.mantkowicz.tg.enums.ScreenPhase;
 import com.mantkowicz.tg.enums.ZoomType;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.json.Offer;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
 import com.mantkowicz.tg.managers.GestureManager;
+import com.mantkowicz.tg.managers.HttpManager;
 import com.mantkowicz.tg.managers.RateManager;
 import com.mantkowicz.tg.managers.ScreenShotManager;
 
@@ -66,7 +69,13 @@ public class GameScreen extends BaseScreen
 	boolean checkMenuActions = false;
 	boolean zoomModeControlRemoved = true;
 	
+	ScreenPhase phase = ScreenPhase.PLAYING;
+	
 	Main game;
+	
+	Offer offer = new Offer();
+	
+	HttpManager manager;
 
 	public GameScreen(Main game, Job job)
 	{
@@ -164,102 +173,150 @@ public class GameScreen extends BaseScreen
 	
 	@Override
 	protected void step()
-	{			
-		paragraph.addToStage();
-		
-		if( paragraph.longPressedId != -1 )
-		{
-			indicatorStart.setCurrentId( paragraph.getWordStart() );
-			indicatorEnd.setCurrentId( paragraph.getWordEnd() );
+	{
+		if( phase == ScreenPhase.PLAYING )
+		{		
+			paragraph.addToStage();
 			
-			indicatorStart.setVisible(true);
-			indicatorEnd.setVisible(true);
-		}
-		
-		if( indicatorStart.isVisible() && indicatorEnd.isVisible() )
-		{
-			paragraph.startId = indicatorStart.getCurrentId();
-			indicatorEnd.setMin(paragraph.startId);
-			
-			paragraph.endId = indicatorEnd.getCurrentId();
-			indicatorStart.setMax(paragraph.endId);
-			
-			if(Main.isMobile && zoomModeControlRemoved)
+			if( paragraph.longPressedId != -1 )
 			{
-				uiStage.addActor(camera);
-				uiStage.addActor(cameraLabel);
+				indicatorStart.setCurrentId( paragraph.getWordStart() );
+				indicatorEnd.setCurrentId( paragraph.getWordEnd() );
 				
-				uiStage.addActor(document);
-				uiStage.addActor(documentLabel);
-				
-				uiStage.addActor(cancel);
-				uiStage.addActor(cancelLabel);
-				
-				zoomModeControlRemoved = false;
+				indicatorStart.setVisible(true);
+				indicatorEnd.setVisible(true);
 			}
+			
+			if( indicatorStart.isVisible() && indicatorEnd.isVisible() )
+			{
+				paragraph.startId = indicatorStart.getCurrentId();
+				indicatorEnd.setMin(paragraph.startId);
+				
+				paragraph.endId = indicatorEnd.getCurrentId();
+				indicatorStart.setMax(paragraph.endId);
+				
+				if(Main.isMobile && zoomModeControlRemoved)
+				{
+					uiStage.addActor(camera);
+					uiStage.addActor(cameraLabel);
+					
+					uiStage.addActor(document);
+					uiStage.addActor(documentLabel);
+					
+					uiStage.addActor(cancel);
+					uiStage.addActor(cancelLabel);
+					
+					zoomModeControlRemoved = false;
+				}
+			}
+			else
+			{
+				paragraph.startId = -1;
+				paragraph.endId = -1;
+				
+				if(Main.isMobile && !zoomModeControlRemoved)
+				{
+					camera.remove();
+					cameraLabel.remove();
+					
+					document.remove();
+					documentLabel.remove();
+					
+					cancel.remove();
+					cancelLabel.remove();
+					
+					zoomModeControlRemoved = true;
+				}
+			}
+					
+			if( Gdx.input.isKeyJustPressed( Keys.R) )
+			{
+				indicatorStart.setVisible(true);
+				indicatorEnd.setVisible(true);
+			}
+			
+			if( Gdx.input.isKeyJustPressed( Keys.T) )
+			{
+				indicatorStart.setVisible(false);
+				indicatorEnd.setVisible(false);
+			}
+					
+			
+			this.uiViewport.update(this.screenWidth, this.screenHeight);
+			this.uiStage.act();
+			this.uiStage.draw();
+			
+			if( checkMenuActions )
+			{			
+				if( (homeButton.getActions().size != 0 || uploadButton.getActions().size != 0) && (menuHideButton.getListeners().size != 0 || menuShowButton.getListeners().size != 0) )
+				{
+					menuHideButton.clearListeners();
+					menuShowButton.clearListeners();
+				}
+				else if( (homeButton.getActions().size == 0 || uploadButton.getActions().size == 0) && (menuHideButton.getListeners().size == 0 && menuShowButton.getListeners().size == 0) )
+				{
+					if( homeButton.getY() == -800 )
+					{
+						menuShowButton.addListener(menuShowListener);
+						
+						checkMenuActions = false;
+					}
+					else if(uploadButton.getY() == -300)
+					{
+						menuHideButton.addListener(menuHideListener);
+						
+						checkMenuActions = false;
+					}
+				}
+			}
+			
+			CameraManager.getInstance().step();
+		}
+		else if( phase == ScreenPhase.SENDING_OFFER )
+		{
+			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+			
+			offer.id = 0; //to bedzie i tak nadane automatycznie
+			offer.job_id = job.id;
+			offer.usr_id = game.usr_id; log(game.usr_id);
+			offer.date = df.format( new Date() );
+			offer.html = ScreenShotManager.getScreenshot( paper, paragraph.glyphs );
+			offer.win = 0;
+			offer.score = RateManager.getInstance().rate(paragraph);
+			
+			manager = new HttpManager();
+			manager.send("http://www.kerning.mantkowicz.pl/ws.php?action=addOffer", offer);
+			
+			phase = ScreenPhase.UPLOADING_OFFER;
+		}
+		else if( phase == ScreenPhase.UPLOADING_OFFER )
+		{
+			if(manager.state == HttpState.FINISHED)
+			{				
+				Json json = new Json();
+				log( json.toJson(offer) );
+				
+				phase = ScreenPhase.FINISHED;
+			}
+			else if(manager.state == HttpState.ERROR)
+			{
+				log( manager.errorCode );
+			}
+		}
+		else if( phase == ScreenPhase.FINISHED )
+		{
+			log(manager.getResponse());
+			manager.resetState();
+			
+			nextScreen = new ResultScreen(game);
+			changeScreen = true;
+			
+			phase = ScreenPhase.IDLE;
 		}
 		else
 		{
-			paragraph.startId = -1;
-			paragraph.endId = -1;
 			
-			if(Main.isMobile && !zoomModeControlRemoved)
-			{
-				camera.remove();
-				cameraLabel.remove();
-				
-				document.remove();
-				documentLabel.remove();
-				
-				cancel.remove();
-				cancelLabel.remove();
-				
-				zoomModeControlRemoved = true;
-			}
 		}
-				
-		if( Gdx.input.isKeyJustPressed( Keys.R) )
-		{
-			indicatorStart.setVisible(true);
-			indicatorEnd.setVisible(true);
-		}
-		
-		if( Gdx.input.isKeyJustPressed( Keys.T) )
-		{
-			indicatorStart.setVisible(false);
-			indicatorEnd.setVisible(false);
-		}
-				
-		
-		this.uiViewport.update(this.screenWidth, this.screenHeight);
-		this.uiStage.act();
-		this.uiStage.draw();
-		
-		if( checkMenuActions )
-		{			
-			if( (homeButton.getActions().size != 0 || uploadButton.getActions().size != 0) && (menuHideButton.getListeners().size != 0 || menuShowButton.getListeners().size != 0) )
-			{
-				menuHideButton.clearListeners();
-				menuShowButton.clearListeners();
-			}
-			else if( (homeButton.getActions().size == 0 || uploadButton.getActions().size == 0) && (menuHideButton.getListeners().size == 0 && menuShowButton.getListeners().size == 0) )
-			{
-				if( homeButton.getY() == -800 )
-				{
-					menuShowButton.addListener(menuShowListener);
-					
-					checkMenuActions = false;
-				}
-				else if(uploadButton.getY() == -300)
-				{
-					menuHideButton.addListener(menuHideListener);
-					
-					checkMenuActions = false;
-				}
-			}
-		}
-		
-		CameraManager.getInstance().step();
 	}	
 	
 	private void createUi()
@@ -632,23 +689,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-			
-			Offer offer = new Offer();
-			
-			offer.id = 0; //to bedzie i tak nadane automatycznie
-			offer.job_id = job.id;
-			offer.usr_id = game.usr_id;
-			offer.date = df.format( new Date() );
-			offer.img = ScreenShotManager.getScreenshot( paper, paragraph.glyphs );
-			offer.win = 0;
-			offer.score = RateManager.getInstance().rate(paragraph);
-			
-			Json json = new Json();
-			log( json.toJson(offer) );
-			
-			nextScreen = new ResultScreen(game);
-			changeScreen = true;
+			phase = ScreenPhase.SENDING_OFFER;
 		}
 	};
 	

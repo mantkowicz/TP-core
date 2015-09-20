@@ -6,6 +6,7 @@ import com.badlogic.gdx.Net.HttpRequest;
 import com.badlogic.gdx.Net.HttpResponse;
 import com.badlogic.gdx.Net.HttpResponseListener;
 import com.mantkowicz.tg.enums.HttpState;
+import com.mantkowicz.tg.json.Offer;
 
 public class HttpManager implements HttpResponseListener 
 {	
@@ -19,6 +20,8 @@ public class HttpManager implements HttpResponseListener
 	
 	String currentUrl = "";
 	
+	public float errorCode;
+	
 	public HttpManager()
 	{
 		state = HttpState.IDLE;
@@ -29,7 +32,23 @@ public class HttpManager implements HttpResponseListener
 		request.setContent("");
 	}
 	
-	public void g(String url)
+	public void send(String url, Offer offer)
+	{
+		request.setMethod(Net.HttpMethods.POST);
+		
+		String content = "job_id=" + offer.job_id + "&usr_id=" + offer.usr_id + "&date=" + offer.date + "&html=" + offer.html + "&score=" + offer.score;
+		
+		request.setContent(content);
+		
+		currentUrl = url; //for debug only
+		
+		request.setUrl(url);
+		Gdx.net.sendHttpRequest(request, this);
+		
+		state = HttpState.DOWNLOADING;
+	}
+	
+	public void get(String url)
 	{
 		result = null;
 		byteResult = null;
@@ -44,16 +63,16 @@ public class HttpManager implements HttpResponseListener
 		state = HttpState.DOWNLOADING;
 	}
 	
-	public void get(String url)
+	public void getString(String url)
 	{
 		getByte = false;
-		g(url);
+		get(url);
 	}
 	
 	public void getByte(String url)
 	{
 		getByte = true;
-		g(url);
+		get(url);
 	}
 		
 	public String getResponse()
@@ -61,6 +80,11 @@ public class HttpManager implements HttpResponseListener
 		state = HttpState.IDLE;
 				
 		return result;
+	}
+	
+	public void resetState()
+	{
+		state = HttpState.IDLE;
 	}
 	
 	public byte[] getByteResponse()
@@ -76,6 +100,7 @@ public class HttpManager implements HttpResponseListener
 		if( httpResponse.getStatus().getStatusCode() != 200 )
 		{
 			state = HttpState.ERROR;
+			errorCode = httpResponse.getStatus().getStatusCode();
 		}
 		else
 		{
