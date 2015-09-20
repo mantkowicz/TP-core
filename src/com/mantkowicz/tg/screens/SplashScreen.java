@@ -130,7 +130,7 @@ public class SplashScreen extends BaseScreen
 			{
 				this.stage.addListener(this.nextScreenListener);
 				
-				this.label.setText("Tap to continue");
+				this.label.setText("Dotknij aby przejœæ do menu");
 				this.label.addAction( this.getBlinkAction(1f, 0f, 0.75f) );
 				
 				phase = ScreenPhase.FINISHED;

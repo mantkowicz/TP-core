@@ -9,6 +9,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -17,6 +19,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Json;
@@ -86,7 +89,7 @@ public class GameScreen extends BaseScreen
 		clearWithGray = true;
 		
 		this.job = job;
-		
+				
 		this.uiViewport = new ExtendViewport(this.screenWidth, this.screenHeight);
 		
 		this.uiStage = new Stage();	
@@ -445,7 +448,7 @@ public class GameScreen extends BaseScreen
 		
 		if( !Main.isMobile )
 		{
-			shrinkButton = new Button(this.game.skin, "shrink");
+			shrinkButton = new Button(this.game.skin, "shrink");			
 			stretchButton = new Button(this.game.skin, "stretch");
 			leftButton = new Button(this.game.skin, "left");
 			rightButton = new Button(this.game.skin, "right");
