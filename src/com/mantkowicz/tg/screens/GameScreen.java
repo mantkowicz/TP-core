@@ -287,33 +287,33 @@ public class GameScreen extends BaseScreen
 			offer.win = 0;
 			offer.score = RateManager.getInstance().rate(paragraph);
 			
-			manager = new HttpManager();
-			manager.send("http://www.kerning.mantkowicz.pl/ws.php?action=addOffer", offer);
+			//manager = new HttpManager();
+			//manager.send("http://www.kerning.mantkowicz.pl/ws.php?action=addOffer", offer);
 			
 			phase = ScreenPhase.UPLOADING_OFFER;
 		}
 		else if( phase == ScreenPhase.UPLOADING_OFFER )
-		{
-			if(manager.state == HttpState.FINISHED)
-			{				
-				Json json = new Json();
-				log( json.toJson(offer) );
-				
-				phase = ScreenPhase.FINISHED;
-			}
-			else if(manager.state == HttpState.ERROR)
-			{
-				log( manager.errorCode );
-			}
+		{phase = ScreenPhase.FINISHED; 
+//			if(manager.state == HttpState.FINISHED)
+//			{				
+//				Json json = new Json();
+//				log( json.toJson(offer) );
+//				
+//				phase = ScreenPhase.FINISHED;
+//			}
+//			else if(manager.state == HttpState.ERROR)
+//			{
+//				log( manager.errorCode );
+//			}
 		}
 		else if( phase == ScreenPhase.FINISHED )
-		{
-			log(manager.getResponse());
-			manager.resetState();
-			
+		{ 
+//			log(manager.getResponse());
+//			manager.resetState();
+//			
 			nextScreen = new ResultScreen(game);
 			changeScreen = true;
-			
+//			
 			phase = ScreenPhase.IDLE;
 		}
 		else

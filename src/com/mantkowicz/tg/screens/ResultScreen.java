@@ -2,10 +2,10 @@ package com.mantkowicz.tg.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.mantkowicz.tg.main.Main;
 
 public class ResultScreen extends BaseScreen
@@ -23,7 +23,7 @@ public class ResultScreen extends BaseScreen
 		
 		Image image = new Image( texture );
 		
-		if( image.getWidth() < 600 && image.getHeight() < 760)
+		/*if( image.getWidth() < 600 && image.getHeight() < 760)
 		{
 			//pass
 		}
@@ -82,9 +82,12 @@ public class ResultScreen extends BaseScreen
 		table.row();
 		
 		table.debug();
+		*/
 		
+		image.setPosition(-image.getWidth()/2f,  -image.getHeight()/2f);
+		((OrthographicCamera)stage.getCamera() ).zoom *= 1/2f;
 		stage.addActor(image);
-		stage.addActor(table);
+		//stage.addActor(table);
 	}
 
 	@Override
