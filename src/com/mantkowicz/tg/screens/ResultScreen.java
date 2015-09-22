@@ -23,6 +23,11 @@ public class ResultScreen extends BaseScreen
 		
 		Image image = new Image( texture );
 		
+		Texture texture2 = new Texture( Gdx.files.local("files/temp2.png") );
+		texture2.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
+		Image image2 = new Image( texture2 );
+		
 		/*if( image.getWidth() < 600 && image.getHeight() < 760)
 		{
 			//pass
@@ -87,7 +92,15 @@ public class ResultScreen extends BaseScreen
 		image.setPosition(-image.getWidth()/2f,  -image.getHeight()/2f);
 		((OrthographicCamera)stage.getCamera() ).zoom *= 1/2f;
 		stage.addActor(image);
+		
+		image2.getColor().a = 0.4f;
+		image2.setPosition(-image2.getWidth()/2f,  -image2.getHeight()/2f);
+		
+		stage.addActor(image2);
 		//stage.addActor(table);
+		
+		this.nextScreen = new SplashScreen(game);
+		this.stage.addListener(this.nextScreenListener);
 	}
 
 	@Override

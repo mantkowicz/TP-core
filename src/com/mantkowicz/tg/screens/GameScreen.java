@@ -285,6 +285,9 @@ public class GameScreen extends BaseScreen
 			offer.date = df.format( new Date() );
 			offer.html = ScreenShotManager.getScreenshot( paper, paragraph.glyphs);
 			offer.win = 0;
+			
+			RateManager.getInstance().checkRivers( paper, paragraph.glyphs);
+			
 			offer.score = RateManager.getInstance().rate(paragraph);
 			
 			//manager = new HttpManager();
