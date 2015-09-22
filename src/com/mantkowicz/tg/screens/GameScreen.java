@@ -283,7 +283,7 @@ public class GameScreen extends BaseScreen
 			offer.job_id = job.id;
 			offer.usr_id = game.usr_id; log(game.usr_id);
 			offer.date = df.format( new Date() );
-			offer.html = ScreenShotManager.getScreenshot( paper, paragraph.glyphs );
+			offer.html = ScreenShotManager.getScreenshot( paper, paragraph.glyphs);
 			offer.win = 0;
 			offer.score = RateManager.getInstance().rate(paragraph);
 			
