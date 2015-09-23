@@ -8,9 +8,8 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -19,20 +18,18 @@ import com.badlogic.gdx.scenes.scene2d.actions.MoveToAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.mantkowicz.tg.actors.Indicator;
 import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.actors.Paragraph;
-import com.mantkowicz.tg.enums.HttpState;
 import com.mantkowicz.tg.enums.IndicatorType;
 import com.mantkowicz.tg.enums.ScreenPhase;
 import com.mantkowicz.tg.enums.ZoomType;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.json.Offer;
+import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
 import com.mantkowicz.tg.managers.GestureManager;
@@ -43,9 +40,10 @@ import com.mantkowicz.tg.managers.ScreenShotManager;
 public class GameScreen extends BaseScreen
 {
 	ExtendViewport uiViewport;
-	Stage uiStage;
+	Stage uiStage, indicatorStartStage, indicatorEndStage;
 	
 	InputMultiplexer inputMultiplexer;
+	InputMultiplexer indicatorInputMultiplexer;
 	
 	GestureManager gestureManager;
 	GestureDetector gestureDetector;
@@ -93,6 +91,8 @@ public class GameScreen extends BaseScreen
 		this.uiViewport = new ExtendViewport(this.screenWidth, this.screenHeight);
 		
 		this.uiStage = new Stage();	
+		this.indicatorStartStage = new Stage();	
+		this.indicatorEndStage = new Stage();	
 		
 		this.uiStage.setViewport(this.uiViewport);
 		
@@ -104,6 +104,9 @@ public class GameScreen extends BaseScreen
 	@Override
 	protected void prepare()
 	{	
+		this.indicatorStartStage.setViewport(this.viewport);
+		this.indicatorEndStage.setViewport(this.viewport);
+		
 		Image paperShadow = new Image( getAtlasRegion("background_g50") );
 		paperShadow.setSize(job.width + 2*job.padding, job.height + 2*job.padding);
 		paperShadow.setPosition(-job.width/2.0f - job.padding + 5, -job.height/2.0f - job.padding - 5);
@@ -145,13 +148,13 @@ public class GameScreen extends BaseScreen
 		indicatorStart.setGrid(paragraph.glyphs);
 		indicatorStart.setVisible(false);
 		
-		stage.addActor(indicatorStart);
+		indicatorStartStage.addActor(indicatorStart);
 		
 		indicatorEnd = new Indicator(IndicatorType.END);	
 		indicatorEnd.setGrid(paragraph.glyphs);
 		indicatorEnd.setVisible(false);
 		
-		stage.addActor(indicatorEnd);
+		indicatorEndStage.addActor(indicatorEnd);
 		
 		
 		createUi();
@@ -163,11 +166,16 @@ public class GameScreen extends BaseScreen
 		
 		inputMultiplexer = new InputMultiplexer();
 		
-		inputMultiplexer.addProcessor(this.stage);
 		inputMultiplexer.addProcessor(this.uiStage);
 		inputMultiplexer.addProcessor(gestureDetector);
+		inputMultiplexer.addProcessor(this.stage);
 		
 		Gdx.input.setInputProcessor(inputMultiplexer);
+		
+		indicatorInputMultiplexer = new InputMultiplexer();
+		indicatorInputMultiplexer.addProcessor(indicatorStartStage);
+		indicatorInputMultiplexer.addProcessor(indicatorEndStage);
+		indicatorInputMultiplexer.addProcessor(this.uiStage);
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
 		CameraManager.getInstance().setCameraBoundingBox(job);
@@ -188,6 +196,8 @@ public class GameScreen extends BaseScreen
 				
 				indicatorStart.setVisible(true);
 				indicatorEnd.setVisible(true);
+				
+				Gdx.input.setInputProcessor(indicatorInputMultiplexer);
 			}
 			
 			if( indicatorStart.isVisible() && indicatorEnd.isVisible() )
@@ -230,24 +240,17 @@ public class GameScreen extends BaseScreen
 					
 					zoomModeControlRemoved = true;
 				}
-			}
-					
-			if( Gdx.input.isKeyJustPressed( Keys.R) )
-			{
-				indicatorStart.setVisible(true);
-				indicatorEnd.setVisible(true);
-			}
-			
-			if( Gdx.input.isKeyJustPressed( Keys.T) )
-			{
-				indicatorStart.setVisible(false);
-				indicatorEnd.setVisible(false);
-			}
-					
+			}				
 			
 			this.uiViewport.update(this.screenWidth, this.screenHeight);
 			this.uiStage.act();
 			this.uiStage.draw();
+			
+			this.indicatorStartStage.act();
+			this.indicatorStartStage.draw();
+			
+			this.indicatorEndStage.act();
+			this.indicatorEndStage.draw();
 			
 			if( checkMenuActions )
 			{			
@@ -661,6 +664,8 @@ public class GameScreen extends BaseScreen
 			indicatorStart.setVisible(false);
 			indicatorEnd.setVisible(false);
 			
+			Gdx.input.setInputProcessor(inputMultiplexer);
+			
 			paragraph.restart();
 		}
 	};
@@ -781,6 +786,8 @@ public class GameScreen extends BaseScreen
 		{
 			indicatorStart.setVisible(false);
 			indicatorEnd.setVisible(false);
+			
+			Gdx.input.setInputProcessor(inputMultiplexer);
 			
 			if( Main.isMobile )
 			{

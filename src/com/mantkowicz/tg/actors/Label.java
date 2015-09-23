@@ -9,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 
 public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label 
 {
+	public boolean isSpace = false;
+	
 	public int id;
 	
 	public float xAdvance = 0f;
@@ -28,6 +30,9 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label
 	public Label(CharSequence text, LabelStyle style) 
 	{
 		super(text, style);
+		
+		if( getText().chars[0] == ' ' ) this.setWidth( (new Label("a", style)).getWidth() );
+		
 		this.addListener(listener);
 	}
 

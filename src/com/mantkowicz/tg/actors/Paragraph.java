@@ -45,7 +45,7 @@ public class Paragraph
 		this.job = this.job_backup.clone();
 		
 		this.markedBackground = markedBackground;
-		
+		job.content.replace(' ', 'a');
 		restart();
 	}
 	
@@ -148,11 +148,23 @@ public class Paragraph
 			
 			tempLabel.id = i;
 			
-			tempLabel.xAdvance = xa.get(ctr);
-			tempLabel.xAdvance_start = xa.get(ctr);
+			if( job.content.substring(i, i+1) == " " )
+			{
+				tempLabel.xAdvance = font.getData().getGlyph('a').xadvance;
+				tempLabel.xAdvance_start = font.getData().getGlyph('a').xadvance;
+				
+				tempLabel.xOffset = font.getData().getGlyph('a').xoffset;
+				tempLabel.xOffset_start = font.getData().getGlyph('a').xoffset;
+			}
+			else
+			{
+				tempLabel.xAdvance = xa.get(ctr);
+				tempLabel.xAdvance_start = xa.get(ctr);
+				
+				tempLabel.xOffset = gl.get(ctr).xoffset;
+				tempLabel.xOffset_start = gl.get(ctr).xoffset;
+			}
 			
-			tempLabel.xOffset = gl.get(ctr).xoffset;
-			tempLabel.xOffset_start = gl.get(ctr).xoffset;
 			tempLabel.glyph = gl.get(ctr);
 			tempLabel.lineHeight = job.lineHeight;
 			
