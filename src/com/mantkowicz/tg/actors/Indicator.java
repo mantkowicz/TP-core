@@ -4,10 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.DragListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
@@ -35,20 +35,10 @@ public class Indicator extends Actor
 	Vector2 sDragVec = new Vector2();
 	Vector2 cDragVec = new Vector2();
 	
-	public Indicator(IndicatorType indicatorType)
+	public Indicator(IndicatorType indicatorType, Texture texture)
 	{	
 		this.indicatorType = indicatorType;
-		
-		if(this.indicatorType == IndicatorType.START)
-		{
-			texture = new Texture( Gdx.files.internal("1.png") );
-			setUserObject("dupa");
-		}
-		else
-		{
-			texture = new Texture( Gdx.files.internal("2.png") );
-		}
-		
+				
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
 		this.setSize(texture.getWidth()*2, texture.getHeight()*2);

@@ -11,7 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.actors.Paragraph;
-import com.mantkowicz.tg.logger.Logger;
 
 public class RateManager
 {
@@ -20,21 +19,65 @@ public class RateManager
 	{
 		return INSTANCE;
 	}
-	
-	private int rivers;
-	
+		
 	private RateManager()
 	{
 		
 	}
 	
-	public int rate(Paragraph paragraph)
+	public final int MAX_SCORE = 100;
+	
+	public class Criterium
 	{
-		return 500;
+		public String name;
+		public int count;
+		public int weight;
+		
+		public Criterium(String name, int count, int weight)
+		{
+			this.name = name;
+			this.count = count;
+			this.weight = weight;
+		}
+		
+		public int getScore()
+		{
+			return count * weight;
+		}
 	}
 	
-	public void checkRivers(Actor area, Array<Label> glyphs)
+	public Array<Criterium> criterias = new Array<RateManager.Criterium>();
+	
+	public int rate(Paragraph paragraph, Actor area)
 	{
+		criterias = new Array<RateManager.Criterium>();
+		String paragraphString = paragraph.getCurrentString();
+		
+		checkRivers(area, paragraph.glyphs);	
+		checkOneLetterWords(paragraphString);
+		
+		
+		//------------------------------------------------------|
+		
+		return getCurrentRate();
+	}
+	
+	public int getCurrentRate()
+	{
+		int score = MAX_SCORE;
+		
+		for(Criterium criterium : criterias)
+		{
+			score -= criterium.getScore();
+		}
+		
+		return Math.max(score , 0);
+	}
+	
+	private void checkRivers(Actor area, Array<Label> glyphs)
+	{
+		int rivers = 0;
+		
 		int width = (int)area.getWidth();
     	int height = (int)area.getHeight();
     	
@@ -146,7 +189,7 @@ public class RateManager
     				}
     				else
     				{
-    					this.rivers++; //obszar zaliczony = nowa rzeka!
+    					rivers++;
     				}
     			}
     		}
@@ -169,8 +212,7 @@ public class RateManager
         PixmapIO.writePNG(fh, pixmap);
         pixmap.dispose();
         
-        Logger.log(this, "ILOSC RZEK = " + this.rivers);
-        this.rivers = 0;
+        criterias.add( new Criterium("Iloœæ korytarzy", rivers, 1) );
 	}
 	
 	private void cutBorder(int[][] fd, float lineHeight)
@@ -357,5 +399,35 @@ public class RateManager
 		}
 		
 		return array;
+	}
+
+	private void checkOneLetterWords(String text)
+	{
+		Array<String> lines = new Array<String>( text.split("\n") );
+		int count = 0;
+		
+		for(String line : lines)
+		{
+			line = line.trim();
+			
+			if( line.charAt(line.length() - 2) == ' ')
+			{
+				if( line.charAt(line.length() - 1) != 'i' )
+				{
+					count++;
+				}
+				else if( line.charAt(line.length() - 1) == 'i' )
+				{
+					line.replaceAll("\\s+","");
+					
+					if( line.length() > 40 )
+					{
+						count++;
+					}
+				}
+			}
+		}
+		
+		criterias.add( new Criterium("Wyrazy jednoliterowe\nna koñcu linii", count, 1) );
 	}
 }

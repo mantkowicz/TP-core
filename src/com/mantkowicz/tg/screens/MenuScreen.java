@@ -65,15 +65,15 @@ public class MenuScreen extends BaseScreen
 		Image log = createImage("logoShort", false);
 		log.setPosition(-600, 275);
 		
-		Label loggedAs = label("Zalogowany jako: mantkowicz", true);
+		Label loggedAs = label("Zalogowany jako: " + JobHandler.getInstance().getUser( game.usr_id ).login, true);
 		loggedAs.setPosition(-470, log.getY() + (log.getHeight() - loggedAs.getHeight() )/2f);
 		
-		Image fake = createImage("fake", false);
-		fake.setPosition(180, log.getY() + (log.getHeight() - fake.getHeight() )/2f);
+		TextButton fakeLogout = new TextButton("    WYLOGUJ", game.skin, "logout");
+		fakeLogout.setPosition(350, log.getY() + (log.getHeight() - fakeLogout.getHeight() )/2f);
 		
 		this.stage.addActor(bar);
 		this.stage.addActor(log);
-		this.stage.addActor(fake);
+		this.stage.addActor(fakeLogout);
 		this.stage.addActor(loggedAs);
 		
 		

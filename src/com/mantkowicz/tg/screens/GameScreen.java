@@ -8,7 +8,6 @@ import java.util.HashMap;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -29,7 +28,6 @@ import com.mantkowicz.tg.enums.ScreenPhase;
 import com.mantkowicz.tg.enums.ZoomType;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.json.Offer;
-import com.mantkowicz.tg.logger.Logger;
 import com.mantkowicz.tg.main.Main;
 import com.mantkowicz.tg.managers.CameraManager;
 import com.mantkowicz.tg.managers.GestureManager;
@@ -144,13 +142,13 @@ public class GameScreen extends BaseScreen
 		paragraph.addToStage();
 		
 		
-		indicatorStart = new Indicator(IndicatorType.START);
+		indicatorStart = new Indicator(IndicatorType.START, getAtlasRegion("1").getTexture());
 		indicatorStart.setGrid(paragraph.glyphs);
 		indicatorStart.setVisible(false);
 		
 		indicatorStartStage.addActor(indicatorStart);
 		
-		indicatorEnd = new Indicator(IndicatorType.END);	
+		indicatorEnd = new Indicator(IndicatorType.END, getAtlasRegion("2").getTexture());	
 		indicatorEnd.setGrid(paragraph.glyphs);
 		indicatorEnd.setVisible(false);
 		
@@ -184,7 +182,7 @@ public class GameScreen extends BaseScreen
 	
 	@Override
 	protected void step()
-	{
+	{	
 		if( phase == ScreenPhase.PLAYING )
 		{		
 			paragraph.addToStage();
@@ -288,10 +286,8 @@ public class GameScreen extends BaseScreen
 			offer.date = df.format( new Date() );
 			offer.html = ScreenShotManager.getScreenshot( paper, paragraph.glyphs);
 			offer.win = 0;
-			
-			RateManager.getInstance().checkRivers( paper, paragraph.glyphs);
-			
-			offer.score = RateManager.getInstance().rate(paragraph);
+						
+			offer.score = RateManager.getInstance().rate(paragraph, paper);
 			
 			//manager = new HttpManager();
 			//manager.send("http://www.kerning.mantkowicz.pl/ws.php?action=addOffer", offer);

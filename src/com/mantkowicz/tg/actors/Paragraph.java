@@ -325,6 +325,23 @@ public class Paragraph
 
 		return --id;
 	}
+	
+	public String getCurrentString()
+	{
+		String currentString = "";
+		
+		for(Label l : glyphs)
+		{
+			if( l.newLine )
+			{
+				currentString += '\n';
+			}
+			
+			currentString += l.getText();
+		}
+		
+		return currentString;
+	}
 		
 	ClickListener listener = new ClickListener() 
 	{

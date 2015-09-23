@@ -3,6 +3,7 @@ package com.mantkowicz.tg.screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
 import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -58,6 +60,7 @@ public abstract class BaseScreen implements Screen
 									  public void clicked(InputEvent event, float x, float y)
 								 	  {
 										  changeScreen = true;
+										  Gdx.input.setInputProcessor(null);
 								 	  }
 								  };
 	}
@@ -93,8 +96,13 @@ public abstract class BaseScreen implements Screen
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		this.viewport.update(this.screenWidth, this.screenHeight);
-		this.stage.act();
-		this.stage.draw();
+		
+		try
+		{
+			this.stage.act();
+			this.stage.draw();
+		}
+		catch(Exception e){}
 		
 		this.step();
 	}
@@ -228,6 +236,29 @@ public abstract class BaseScreen implements Screen
 	{
 		Label label = new Label(text, game.skin, type);
 		label.setAlignment(Align.right);
+		
+		return label; 
+	}
+	
+	protected Label createCenterLabel(String text, String type)
+	{
+		return this.createCenterLabel(text, type, null);
+	}
+	
+	protected Label createCenterLabel(String text, String type, Color color)
+	{
+		Label label = new Label(text, game.skin, type);
+		
+		if(color!=null)
+		{
+			LabelStyle ls = new LabelStyle( label.getStyle() );
+			ls.fontColor = color;
+			
+			label = new Label(text, ls);
+		}
+
+		label.setAlignment(Align.center);
+		label.setWrap(true);
 		
 		return label; 
 	}
