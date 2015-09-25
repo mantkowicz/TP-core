@@ -71,7 +71,7 @@ public abstract class BaseScreen implements Screen
 		this.viewport = new ExtendViewport(this.screenWidth, this.screenHeight);
 		
 		this.stage = new Stage();	
-
+game.stage = stage;
 		this.stage.setViewport(this.viewport);
 		Gdx.input.setInputProcessor(this.stage);
 		

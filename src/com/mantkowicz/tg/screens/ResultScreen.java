@@ -83,13 +83,13 @@ public class ResultScreen extends BaseScreen
 	{
 		Table table = new Table();
 		table.setSize(600, 600);
-		table.setPosition(0, -300);
+		table.setPosition(20, -280);
 		
 		Table headTable = new Table();
 		headTable.setBackground( new TextureRegionDrawable( getAtlasRegion("background_g30") ) );
 				
 		headTable.add( createCenterLabel("Kryterium", "medium", Color.BLACK) ).width(table.getWidth()/2 - 50).pad(0, 0, 0, 20);
-		headTable.add( createCenterLabel("Iloœæ", "medium", Color.BLACK) ).width(table.getWidth()/4 - 10).pad(0, 0, 0, 0);
+		headTable.add( createCenterLabel("Liczba", "medium", Color.BLACK) ).width(table.getWidth()/4 - 10).pad(0, 0, 0, 0);
 		headTable.add( createCenterLabel("Kara", "medium", Color.BLACK) ).width(table.getWidth()/4 - 10).pad(0, 20, 0, 0);
 		headTable.row();
 		

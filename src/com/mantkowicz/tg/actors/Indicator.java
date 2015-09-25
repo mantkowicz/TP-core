@@ -35,10 +35,19 @@ public class Indicator extends Actor
 	Vector2 sDragVec = new Vector2();
 	Vector2 cDragVec = new Vector2();
 	
-	public Indicator(IndicatorType indicatorType, Texture texture)
+	public Indicator(IndicatorType indicatorType)
 	{	
 		this.indicatorType = indicatorType;
-				
+		
+		if(this.indicatorType == IndicatorType.START)
+		{
+			texture = new Texture( Gdx.files.internal("1.png") );
+		}
+		else if(this.indicatorType == IndicatorType.END)
+		{
+			texture = new Texture( Gdx.files.internal("2.png") );
+		}
+		
 		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
 		this.setSize(texture.getWidth()*2, texture.getHeight()*2);

@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Array;
 import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.actors.Paragraph;
+import com.mantkowicz.tg.json.Job;
 
 public class RateManager
 {
@@ -55,13 +56,21 @@ public class RateManager
 		
 		checkRivers(area, paragraph.glyphs);	
 		checkOneLetterWords(paragraphString);
+		checkLeading(paragraph.job);		
+		checkIndent(paragraph.job);
+		checkLastRow(paragraph);
+		checkStartPause(paragraphString);
 		
+		checkHyphenCount(paragraph);
 		
+		checkHyphenBefore(paragraph);
+		checkHyphenAfter(paragraph);
+		checkRightHoles(paragraph);	
 		//------------------------------------------------------|
 		
 		return getCurrentRate();
 	}
-	
+
 	public int getCurrentRate()
 	{
 		int score = MAX_SCORE;
@@ -102,10 +111,13 @@ public class RateManager
 		//--------------------usuwanie obramowania------------------------------------------------------------------------|		
 		cutBorder(fd, glyphs.first().lineHeight);
 		
-		fd1 = fd.clone();
-		fd2 = fd.clone();
-		fd3 = fd.clone();
-    		
+		for(int i = 0; i < fd.length; i++)
+			for(int j = 0; j < fd[0].length; j++)
+			{
+				fd1[i][j] = fd[i][j];
+				fd2[i][j] = fd[i][j];
+				fd3[i][j] = fd[i][j];
+			}		
     		
 		//--------------------dylatacja-----------------------------------------------------------------------------------|	
 		int cW = (int) (new Label("a", glyphs.first().getStyle())).getWidth();
@@ -144,7 +156,7 @@ public class RateManager
 		for(int i = 0; i < width; i++)
     		for(int j = 0; j < height; j++)
     		{
-    			if( fd1[i][j] == 0 || fd2[i][j] == 0 || fd3[i][j] == 0 )
+    			if( fd1[i][j] == 0 && fd2[i][j] == 0 && fd3[i][j] == 0 )
     			{
     				fd[i][j] = 0;
     			}
@@ -212,7 +224,7 @@ public class RateManager
         PixmapIO.writePNG(fh, pixmap);
         pixmap.dispose();
         
-        criterias.add( new Criterium("Iloœæ korytarzy", rivers, 1) );
+        criterias.add( new Criterium("Liczba korytarzy", rivers, 10) );
 	}
 	
 	private void cutBorder(int[][] fd, float lineHeight)
@@ -412,7 +424,7 @@ public class RateManager
 			
 			if( line.charAt(line.length() - 2) == ' ')
 			{
-				if( line.charAt(line.length() - 1) != 'i' )
+				if( line.charAt(line.length() - 1) != 'i' && String.valueOf( line.charAt(line.length() - 1) ).matches("[a-zA-Z]") )
 				{
 					count++;
 				}
@@ -429,5 +441,192 @@ public class RateManager
 		}
 		
 		criterias.add( new Criterium("Wyrazy jednoliterowe\nna koñcu linii", count, 1) );
+	}
+	
+	private void checkStartPause(String text)
+	{
+		Array<String> lines = new Array<String>( text.split("\n") );
+		int count = 0;
+		
+		for(String line : lines)
+		{
+			line.trim();
+			
+			if( line.length() >= 50 && (line.charAt(0) == '–' || line.charAt(0) == '—' || line.charAt(0) == '-' )  )
+			{
+				count++;
+			}
+		}
+		
+		criterias.add( new Criterium("Pauza lub pó³pauza na pocz¹tku wiersza", count, 1) );
+	}
+	
+	private void checkIndent(Job job)
+	{
+		int count = 0;
+		
+		float min = job.font_size, max = job.font_size;
+		float precision = 0.1f * job.font_size;
+		
+		if( job.width / Gdx.graphics.getPpcX() > 11 ) //ile px w wierszu * px/cm = ile cm ma wiersz
+		{
+			max = 2 * job.font_size;
+		}
+		
+		if( job.indent < min - precision || job.indent > max + precision )
+		{
+			count++;
+		}
+		
+		criterias.add( new Criterium("B³êdne wciêcie akapitu", count, 1) );
+	}
+	
+	private void checkLeading(Job job)
+	{
+		int count = 0;
+		
+		float leading = (job.lineHeight - job.font_size) * 2;
+		
+		if( leading < 2.6f || leading > 4 ) //2-3pt znalezc zrodlo - ile pt to jeden px?
+		{
+			count++;
+		}
+		
+		criterias.add( new Criterium("Nieoptymalna interlinia", count, 1) );
+	}
+	
+	private void checkRightHoles(Paragraph paragraph)
+	{
+		int count = 0;
+		
+		float minRowWidth = paragraph.job.width * 0.8f;
+		
+		float rowWidth = paragraph.job.indent; //bo pierwszy wiersz zaczyna sie wcieciem;
+		
+		for(Label glyph : paragraph.glyphs)
+		{
+			if( glyph.newLine )
+			{
+				if( rowWidth < minRowWidth )
+				{
+					count++;
+				}
+				
+				rowWidth = 0;
+			}
+			
+			rowWidth += glyph.getWidth();
+		}
+		
+		criterias.add( new Criterium("Nieregularna prawa strona g³êbiej ni¿ w 20% szerokoœci sk³adu", count, 0) );
+	}
+	
+	private void checkLastRow(Paragraph paragraph)
+	{
+		int count = 0;
+		
+		float rowWidth = 0;
+		
+		for(int i = paragraph.glyphs.size - 1; i >= 0; i--)
+		{
+			rowWidth += paragraph.glyphs.get(i).getWidth();
+			
+			if( paragraph.glyphs.get(i).newLine )
+			{
+				if( rowWidth > paragraph.job.width - paragraph.job.indent )
+				{
+					count++;
+				}
+				
+				break;
+			}
+		}
+		
+		criterias.add( new Criterium("Ostatni wiersz z³o¿ony na pe³en format", count, 1) );
+	}
+	
+	private void checkHyphenCount(Paragraph paragraph)
+	{
+		int count = 0;
+		
+		
+		
+		criterias.add( new Criterium("B³êdna iloœæ przeniesieñ pod rz¹d", count, 0) );
+	}
+	
+	private void checkHyphenAfter(Paragraph paragraph) 
+	{
+		int count = 0;
+		
+		boolean countLetters = false;
+		int letters = 0;
+		
+		for(int i = 1; i < paragraph.glyphs.size; i++)
+		{
+			Label glyph = paragraph.glyphs.get(i);
+			Label before = paragraph.glyphs.get(i-1);
+			
+			if( glyph.newLine && before.getHyphen() && !glyph.isSpace && !before.isSpace )
+			{
+				countLetters = true;
+			}
+			
+			if( countLetters )
+			{
+				if( glyph.isSpace )
+				{
+					countLetters = false;
+					
+					if( letters < 3 ) count++;
+					
+					letters = 0;
+				}
+				else
+				{
+					letters++;
+				}
+				
+			}
+		}
+		
+		criterias.add( new Criterium("Przeniesione mniej ni¿ trzy znaki", count, 1) );
+	}
+	
+	private void checkHyphenBefore(Paragraph paragraph) 
+	{
+		int count = 0;
+		
+		boolean countLetters = false;
+		int letters = 0;
+		
+		for(int i = paragraph.glyphs.size - 2; i >= 0; i--)
+		{
+			Label glyph = paragraph.glyphs.get(i);
+			Label after = paragraph.glyphs.get(i+1);
+			
+			if( after.newLine && glyph.getHyphen() && !glyph.isSpace && !after.isSpace )
+			{
+				countLetters = true;
+			}
+			
+			if( countLetters )
+			{
+				if( glyph.isSpace )
+				{
+					countLetters = false;
+					
+					if( letters < 2 ) count++;
+					
+					letters = 0;
+				}
+				else
+				{
+					letters++;
+				}
+				
+			}
+		}
+		
+		criterias.add( new Criterium("Mniej ni¿ dwa znaki przed przeniesieniem", count, 1) );
 	}
 }

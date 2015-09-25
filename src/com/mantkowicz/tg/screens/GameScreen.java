@@ -10,6 +10,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
@@ -61,6 +62,11 @@ public class GameScreen extends BaseScreen
 	
 	Button indentPlusButton, indentMinusButton, interlinePlusButton, interlineMinusButton, fontSizePlusButton, fontSizeMinusButton, cancelEditButton;
 	Label indentLabel, interlineLabel, indentValueLabel, interlineValueLabel, fontSizeLabel, fontSizeValueLabel;
+	
+	Button hyphenOn, hyphenOff, hyphenAuto, hyphenReset;
+	Label hyphenOnLabel, hyphenOffLabel, hyphenAutoLabel, hyphenResetLabel;
+	
+	Group hyphenGroup;
 	
 	Indicator indicatorStart;
 	Indicator indicatorEnd;
@@ -142,13 +148,13 @@ public class GameScreen extends BaseScreen
 		paragraph.addToStage();
 		
 		
-		indicatorStart = new Indicator(IndicatorType.START, getAtlasRegion("1").getTexture());
+		indicatorStart = new Indicator(IndicatorType.START);
 		indicatorStart.setGrid(paragraph.glyphs);
 		indicatorStart.setVisible(false);
 		
 		indicatorStartStage.addActor(indicatorStart);
 		
-		indicatorEnd = new Indicator(IndicatorType.END, getAtlasRegion("2").getTexture());	
+		indicatorEnd = new Indicator(IndicatorType.END);	
 		indicatorEnd.setGrid(paragraph.glyphs);
 		indicatorEnd.setVisible(false);
 		
@@ -174,6 +180,7 @@ public class GameScreen extends BaseScreen
 		indicatorInputMultiplexer.addProcessor(indicatorStartStage);
 		indicatorInputMultiplexer.addProcessor(indicatorEndStage);
 		indicatorInputMultiplexer.addProcessor(this.uiStage);
+		indicatorInputMultiplexer.addProcessor(gestureDetector);
 		
 		CameraManager.getInstance().setCamera(this.stage.getCamera());
 		CameraManager.getInstance().setCameraBoundingBox(job);
@@ -182,7 +189,7 @@ public class GameScreen extends BaseScreen
 	
 	@Override
 	protected void step()
-	{	
+	{		
 		if( phase == ScreenPhase.PLAYING )
 		{		
 			paragraph.addToStage();
@@ -194,6 +201,8 @@ public class GameScreen extends BaseScreen
 				
 				indicatorStart.setVisible(true);
 				indicatorEnd.setVisible(true);
+				
+				hyphenGroup.setVisible(true);
 				
 				Gdx.input.setInputProcessor(indicatorInputMultiplexer);
 			}
@@ -326,6 +335,51 @@ public class GameScreen extends BaseScreen
 	
 	private void createUi()
 	{
+		hyphenGroup = new Group();
+		
+		hyphenOn = new Button(game.skin, "hyphenOn");
+		hyphenOff = new Button(game.skin, "hyphenOff");
+		hyphenAuto = new Button(game.skin, "hyphenAuto");
+		hyphenReset = new Button(game.skin, "hyphenReset");
+		
+		hyphenOnLabel = new Label("dziel", game.skin, "small");
+		hyphenOffLabel = new Label("nie dziel ", game.skin, "small");
+		hyphenAutoLabel = new Label("auto", game.skin, "small");
+		hyphenResetLabel = new Label("resetuj", game.skin, "small");
+		
+		hyphenOn.setPosition(0, 0);
+		hyphenOff.setPosition(100, 0);
+		hyphenAuto.setPosition(200, 0);
+		hyphenReset.setPosition(300, 0);
+		
+		hyphenOn.addListener(hyphenOnListener);
+		hyphenOff.addListener(hyphenOffListener);
+		hyphenAuto.addListener(hyphenAutoListener);
+		hyphenReset.addListener(hyphenResetListener);
+		
+		hyphenOnLabel.setPosition(hyphenOn.getX() + 25 - hyphenOnLabel.getWidth()/2f, hyphenOn.getY() - hyphenOnLabel.getHeight());
+		hyphenOffLabel.setPosition(hyphenOff.getX() + 25 - hyphenOffLabel.getWidth()/2f, hyphenOff.getY() - hyphenOffLabel.getHeight());
+		hyphenAutoLabel.setPosition(hyphenAuto.getX() + 25 - hyphenAutoLabel.getWidth()/2f, hyphenAuto.getY() - hyphenAutoLabel.getHeight());
+		hyphenResetLabel.setPosition(hyphenReset.getX() + 25 - hyphenResetLabel.getWidth()/2f, hyphenReset.getY() - hyphenResetLabel.getHeight());
+		
+		hyphenOnLabel.setAlignment(Align.center);
+		hyphenOffLabel.setAlignment(Align.center);
+		hyphenAutoLabel.setAlignment(Align.center);
+		hyphenResetLabel.setAlignment(Align.center);
+		
+		hyphenGroup.addActor(hyphenOn);
+		hyphenGroup.addActor(hyphenOnLabel);
+		hyphenGroup.addActor(hyphenOff);
+		hyphenGroup.addActor(hyphenOffLabel);
+		hyphenGroup.addActor(hyphenAuto);
+		hyphenGroup.addActor(hyphenAutoLabel);
+		hyphenGroup.addActor(hyphenReset);
+		hyphenGroup.addActor(hyphenResetLabel);
+		
+		hyphenGroup.setPosition(-580, 300);
+		hyphenGroup.setVisible(false);
+		//---
+		
 		indentPlusButton = new Button(this.game.skin, "plus");
 		indentMinusButton = new Button(this.game.skin, "minus");
 		interlinePlusButton = new Button(this.game.skin, "plus");
@@ -384,6 +438,7 @@ public class GameScreen extends BaseScreen
 		
 		cancelEditButton.setVisible(false);
 		
+		uiStage.addActor(hyphenGroup);
 		uiStage.addActor(indentPlusButton);
 		uiStage.addActor(indentMinusButton);
 		uiStage.addActor(interlinePlusButton);
@@ -660,6 +715,8 @@ public class GameScreen extends BaseScreen
 			indicatorStart.setVisible(false);
 			indicatorEnd.setVisible(false);
 			
+			hyphenGroup.setVisible(false);
+			
 			Gdx.input.setInputProcessor(inputMultiplexer);
 			
 			paragraph.restart();
@@ -783,6 +840,8 @@ public class GameScreen extends BaseScreen
 			indicatorStart.setVisible(false);
 			indicatorEnd.setVisible(false);
 			
+			hyphenGroup.setVisible(false);
+			
 			Gdx.input.setInputProcessor(inputMultiplexer);
 			
 			if( Main.isMobile )
@@ -886,6 +945,38 @@ public class GameScreen extends BaseScreen
 			paragraph.decreaseFontSize();
 			fontSizeValueLabel.setText(paragraph.job.font_size+"px");
 			fontSizeValueLabel.setPosition(fontSizeMinusButton.getX() + (225 - fontSizeValueLabel.getWidth())/2f, -300);
+		}
+	};
+		
+	ClickListener hyphenOnListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.setHyphen(indicatorStart.getCurrentId(), indicatorEnd.getCurrentId());
+		}
+	};
+	
+	ClickListener hyphenOffListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.unsetHyphen(indicatorStart.getCurrentId(), indicatorEnd.getCurrentId());
+		}
+	};
+	
+	ClickListener hyphenAutoListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.autoHyphen(indicatorStart.getCurrentId(), indicatorEnd.getCurrentId());
+		}
+	};
+	
+	ClickListener hyphenResetListener = new ClickListener() 
+	{
+		public void clicked(InputEvent event, float x, float y)
+		{
+			paragraph.resetHyphen(indicatorStart.getCurrentId(), indicatorEnd.getCurrentId());
 		}
 	};
 }

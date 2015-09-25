@@ -15,6 +15,7 @@ public class Job
 	public int padding;
 	public int indent;
 	public int lineHeight;
+	public String hyphen;
 	
 	public Job clone()
 	{
@@ -33,6 +34,7 @@ public class Job
 		job.padding = this.padding;
 		job.indent = this.indent;
 		job.lineHeight = this.lineHeight;		
+		job.hyphen = this.hyphen;
 		
 		return job;
 	}

@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout.GlyphRun;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.BooleanArray;
 import com.badlogic.gdx.utils.FloatArray;
 import com.mantkowicz.tg.json.Job;
 import com.mantkowicz.tg.managers.FontManager;
@@ -45,7 +47,7 @@ public class Paragraph
 		this.job = this.job_backup.clone();
 		
 		this.markedBackground = markedBackground;
-		job.content.replace(' ', 'a');
+		
 		restart();
 	}
 	
@@ -126,9 +128,10 @@ public class Paragraph
 		glyphs = new Array<Label>();
 		
 		int ctr = 0;
-
+		int autoHyphenIndex = 0;
+		
 		for(int i = 0; i < job.content.length(); i++)
-		{
+		{			
 			if(job.content.substring(i, i+1).equals("\n"))
 			{
 				if(i > 0) 
@@ -177,6 +180,18 @@ public class Paragraph
 			glyphs.add( tempLabel );
 			
 			ctr++;
+			
+			//hyphening
+			autoHyphenIndex++;
+
+			if( autoHyphenIndex < job.hyphen.length() )
+			{
+				if( job.hyphen.substring(autoHyphenIndex, autoHyphenIndex+1).equals("$") )
+				{
+					tempLabel.autoHyphen = true;
+					autoHyphenIndex++;
+				}
+			}
 		}
 	}
 		
@@ -187,6 +202,11 @@ public class Paragraph
 		
 		handleLongPress();		
 		updateNewLines();
+		
+		for(Actor a : stage.getActors())
+		{
+			if( a.getUserObject() != null && a.getUserObject().equals("eraseEverytime") ) a.remove();
+		}
 		
 		for(Label l : glyphs)
 		{		
@@ -237,7 +257,26 @@ public class Paragraph
 			
 			l.setX( pattern.getX() + prevW + l.xOffset); //gl.get(ctr).xoffset); //lab.getGlyphLayout().runs.first().glyphs.get(ctr).xoffset );
 			l.setY( pattern.getY() + pattern.getHeight() - row );
-							
+						
+			//handling hyphenated text
+			if(l.id > 0 && glyphs.get(l.id - 1).getHyphen() && !glyphs.get(l.id - 1).isSpace && !l.isSpace && l.newLine )
+			{
+				Label pre = glyphs.get(l.id - 1);
+				
+				Label divider = new Label("-", l.getStyle());
+				divider.setPosition(l.getX() - divider.getWidth() - 1, l.getY() + (l.getHeight() - divider.getHeight() )/2f );
+				
+				divider.setUserObject("eraseEverytime");
+				
+				Label predivider = new Label("-", pre.getStyle());
+				predivider.setPosition(pre.getX() + pre.getWidth() + 1, pre.getY() + (pre.getHeight() - predivider.getHeight() )/2f );
+				
+				predivider.setUserObject("eraseEverytime");
+				
+				stage.addActor(divider);
+				stage.addActor(predivider);
+			}
+			
 			stage.addActor(l);				
 		}
 		
@@ -284,10 +323,11 @@ public class Paragraph
 			{
 				if( l.getText().chars[0] != ' ' )
 				{
-					glyphs.get( getWordStart(l.id) ).newLine = true;
+					//glyphs.get( getWordStart(l.id) ).newLine = true;
+					glyphs.get( getWordHyphen(l.id) ).newLine = true;
 					
 					prevW = 0;
-					i = getWordStart(l.id);
+					i = getWordHyphen(l.id);
 				}
 			}
 		}
@@ -324,6 +364,50 @@ public class Paragraph
 		}
 
 		return --id;
+	}
+	
+	public int getWordHyphen(int id)
+	{		
+		while(id >= 0 )
+		{			
+			if(this.glyphs.get(id).getHyphen()) break;
+			
+			id--;
+		}
+				
+		return id + 1;
+	}
+	
+	public void setHyphen(int idStart, int idEnd)
+	{
+		for(int i = idStart; i <= idEnd; i++)
+		{
+			this.glyphs.get(i).setHyphen();
+		}
+	}
+	
+	public void unsetHyphen(int idStart, int idEnd)
+	{
+		for(int i = idStart; i <= idEnd; i++)
+		{
+			this.glyphs.get(i).unsetHyphen();
+		}
+	}
+	
+	public void resetHyphen(int idStart, int idEnd)
+	{
+		for(int i = idStart; i <= idEnd; i++)
+		{
+			this.glyphs.get(i).resetHyphen();
+		}
+	}
+	
+	public void autoHyphen(int idStart, int idEnd)
+	{
+		for(int i = idStart; i <= idEnd; i++)
+		{
+			if( this.glyphs.get(i).autoHyphen ) this.glyphs.get(i).setHyphen();
+		}
 	}
 	
 	public String getCurrentString()

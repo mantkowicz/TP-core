@@ -18,7 +18,7 @@ public class Font
 	
 	public void save(HttpManager manager)
 	{
-		FileHandle fh = Gdx.files.local("files/fonts/" + this.id + "/font.TTF");
+		FileHandle fh = Gdx.files.local("files/fonts/" + this.id + "/font.ttf");
 		fh.writeBytes(manager.getByteResponse(), false);
 	}
 }

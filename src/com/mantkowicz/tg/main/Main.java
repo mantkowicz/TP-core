@@ -4,7 +4,9 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.screens.SplashScreen;
 
 public class Main extends Game 
@@ -18,7 +20,7 @@ public class Main extends Game
 	public Skin skin;
 	
 	public int usr_id; //to simulate being logged in
-		
+		public Stage stage;
 	@Override
 	public void create()
 	{
@@ -46,7 +48,14 @@ public class Main extends Game
 		catch(Exception e)
 		{ 
 			e.printStackTrace();
-			Gdx.app.exit();
+			
+			Label label = new Label(e.getMessage(), skin, "small");
+			label.setWrap(true);
+			label.setWidth(1000);
+			label.setPosition(-500, 0);
+			stage.addActor( label );
+			
+			//Gdx.app.exit();
 		}
 	}
 }

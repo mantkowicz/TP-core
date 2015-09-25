@@ -2,13 +2,16 @@ package com.mantkowicz.tg.actors;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont.Glyph;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener;
 
 public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label 
-{
+{		
 	public boolean isSpace = false;
 	
 	public int id;
@@ -25,17 +28,31 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label
 	public boolean newLine = false;
 	public boolean longPressed = false;
 	
+	private boolean hyphenStart = false;
+	private boolean hyphen = false;
+	public boolean autoHyphen = false;
+	
 	public int lineHeight;
 
 	public Label(CharSequence text, LabelStyle style) 
 	{
 		super(text, style);
 		
-		if( getText().chars[0] == ' ' ) this.setWidth( (new Label("a", style)).getWidth() );
+		if( getText().chars[0] == ' ' || getText().chars[0] == '\n' ) 
+		{
+			hyphen = true;
+			hyphenStart = true;
+		}
+		
+		if( getText().chars[0] == ' ' )
+		{
+			this.setWidth( (new Label("a", style)).getWidth() );
+			this.isSpace = true;
+		}
 		
 		this.addListener(listener);
 	}
-
+	
 	public Label(CharSequence text, Skin skin, String fontName, Color color) 
 	{
 		super(text, skin, fontName, color);
@@ -54,6 +71,35 @@ public class Label extends com.badlogic.gdx.scenes.scene2d.ui.Label
 	public Label(CharSequence text, Skin skin) 
 	{
 		super(text, skin);
+	}
+	
+	public void setHyphen()
+	{
+		this.hyphen = true;
+		this.getStyle().fontColor = Color.TEAL;
+		
+		if(isSpace) this.setText(" ");
+	}
+	
+	public void unsetHyphen()
+	{
+		this.hyphen = false;
+		this.getStyle().fontColor = Color.OLIVE;
+		
+		if(isSpace) this.setText("-");
+	}
+	
+	public void resetHyphen()
+	{
+		this.hyphen = this.hyphenStart;
+		this.getStyle().fontColor = Color.BLACK;
+		
+		if(isSpace) this.setText(" ");
+	}
+	
+	public boolean getHyphen()
+	{
+		return this.hyphen;
 	}
 	
 	public int[][] getPixels()
