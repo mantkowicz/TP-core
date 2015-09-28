@@ -257,7 +257,7 @@ public class Paragraph
 			
 			l.setX( pattern.getX() + prevW + l.xOffset); //gl.get(ctr).xoffset); //lab.getGlyphLayout().runs.first().glyphs.get(ctr).xoffset );
 			l.setY( pattern.getY() + pattern.getHeight() - row );
-						
+			
 			//handling hyphenated text
 			if(l.id > 0 && glyphs.get(l.id - 1).getHyphen() && !glyphs.get(l.id - 1).isSpace && !l.isSpace && l.newLine )
 			{
@@ -319,7 +319,7 @@ public class Paragraph
 			
 			prevW += l.xAdvance;
 			
-			if( prevW > job.width - job.padding * 2 )
+			if( prevW >= job.width - job.padding * 2 - 5 )
 			{
 				if( l.getText().chars[0] != ' ' )
 				{

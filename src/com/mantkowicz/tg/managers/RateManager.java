@@ -518,7 +518,7 @@ public class RateManager
 			rowWidth += glyph.getWidth();
 		}
 		
-		criterias.add( new Criterium("Nieregularna prawa strona g³êbiej ni¿ w 20% szerokoœci sk³adu", count, 0) );
+		//criterias.add( new Criterium("Nieregularna prawa strona g³êbiej ni¿ w 20% szerokoœci sk³adu", count, 0) );
 	}
 	
 	private void checkLastRow(Paragraph paragraph)
@@ -549,7 +549,7 @@ public class RateManager
 	{
 		int count = 0;
 		
-		
+		//liczba literek a 
 		
 		criterias.add( new Criterium("B³êdna iloœæ przeniesieñ pod rz¹d", count, 0) );
 	}

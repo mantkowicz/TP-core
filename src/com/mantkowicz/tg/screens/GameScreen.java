@@ -761,7 +761,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			paragraph.kerningModificator = 1f;
+			paragraph.kerningModificator = 0.2f;
 		}
 	};
 	
@@ -769,7 +769,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			paragraph.kerningModificator = -1f;
+			paragraph.kerningModificator = -0.2f;
 		}
 	};
 	
@@ -777,7 +777,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			paragraph.offsetModificator = -1f;
+			paragraph.offsetModificator = -0.2f;
 		}
 	};
 	
@@ -785,7 +785,7 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			paragraph.offsetModificator = 1f;
+			paragraph.offsetModificator = 0.2f;
 		}
 	};
 	
