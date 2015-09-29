@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector;
@@ -20,10 +19,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.mantkowicz.tg.actors.Indicator;
 import com.mantkowicz.tg.actors.Label;
 import com.mantkowicz.tg.actors.Paragraph;
+import com.mantkowicz.tg.enums.HttpState;
 import com.mantkowicz.tg.enums.IndicatorType;
 import com.mantkowicz.tg.enums.ScreenPhase;
 import com.mantkowicz.tg.enums.ZoomType;
@@ -298,33 +299,33 @@ public class GameScreen extends BaseScreen
 						
 			offer.score = RateManager.getInstance().rate(paragraph, paper);
 			
-			//manager = new HttpManager();
-			//manager.send("http://www.kerning.mantkowicz.pl/ws.php?action=addOffer", offer);
+			manager = new HttpManager();
+			manager.send("http://www.kerning.mantkowicz.pl/ws.php?action=addOffer", offer);
 			
 			phase = ScreenPhase.UPLOADING_OFFER;
 		}
 		else if( phase == ScreenPhase.UPLOADING_OFFER )
-		{phase = ScreenPhase.FINISHED; 
-//			if(manager.state == HttpState.FINISHED)
-//			{				
-//				Json json = new Json();
-//				log( json.toJson(offer) );
-//				
-//				phase = ScreenPhase.FINISHED;
-//			}
-//			else if(manager.state == HttpState.ERROR)
-//			{
-//				log( manager.errorCode );
-//			}
+		{
+			if(manager.state == HttpState.FINISHED)
+			{				
+				Json json = new Json();
+				log( json.toJson(offer) );
+				
+				phase = ScreenPhase.FINISHED;
+			}
+			else if(manager.state == HttpState.ERROR)
+			{
+				log( manager.errorCode );
+			}
 		}
 		else if( phase == ScreenPhase.FINISHED )
 		{ 
-//			log(manager.getResponse());
-//			manager.resetState();
-//			
+			log(manager.getResponse());
+			manager.resetState();
+			
 			nextScreen = new ResultScreen(game);
 			changeScreen = true;
-//			
+		
 			phase = ScreenPhase.IDLE;
 		}
 		else
