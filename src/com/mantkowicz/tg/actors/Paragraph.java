@@ -125,6 +125,8 @@ public class Paragraph
 			}
 		}
 		
+		xa.set(0, xa.get(0) + job.indent);
+		
 		glyphs = new Array<Label>();
 		
 		int ctr = 0;
@@ -216,7 +218,7 @@ public class Paragraph
 				prevW = 0;
 			}
 			
-			if( l.id == 0 ) prevW += job.indent;
+			//if( l.id == 0 ) prevW += job.indent;
 			
 			boolean modifyKerning = false;
 			//changing color

@@ -156,13 +156,16 @@ public class Indicator extends Actor
 	
 	private void changePosition( int x)
 	{
-		if( indicatorType == IndicatorType.START )
+		if(grid.size > 0)
 		{
-			setPosition(grid.get(currentId).x, grid.get(currentId).y);
-		}
-		else
-		{
-			setPosition(grid.get(currentId).x + lWidths.get(currentId), grid.get(currentId).y);
+			if( indicatorType == IndicatorType.START )
+			{
+				setPosition(grid.get(currentId).x, grid.get(currentId).y);
+			}
+			else
+			{
+				setPosition(grid.get(currentId).x + lWidths.get(currentId), grid.get(currentId).y);
+			}
 		}
 	}
 	

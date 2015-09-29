@@ -440,7 +440,7 @@ public class RateManager
 			}
 		}
 		
-		criterias.add( new Criterium("Wyrazy jednoliterowe\nna koñcu linii", count, 1) );
+		criterias.add( new Criterium("Wyrazy jednoliterowe\nna koñcu linii", count, 5) );
 	}
 	
 	private void checkStartPause(String text)
@@ -458,7 +458,7 @@ public class RateManager
 			}
 		}
 		
-		criterias.add( new Criterium("Pauza lub pó³pauza na pocz¹tku wiersza", count, 1) );
+		criterias.add( new Criterium("Pauza lub pó³pauza na pocz¹tku wiersza", count, 5) );
 	}
 	
 	private void checkIndent(Job job)
@@ -478,7 +478,7 @@ public class RateManager
 			count++;
 		}
 		
-		criterias.add( new Criterium("B³êdne wciêcie akapitu", count, 1) );
+		criterias.add( new Criterium("B³êdne wciêcie akapitu", count, 2) );
 	}
 	
 	private void checkLeading(Job job)
@@ -492,7 +492,7 @@ public class RateManager
 			count++;
 		}
 		
-		criterias.add( new Criterium("Nieoptymalna interlinia", count, 1) );
+		criterias.add( new Criterium("Nieoptymalna interlinia", count, 2) );
 	}
 	
 	private void checkRightHoles(Paragraph paragraph)
@@ -501,39 +501,45 @@ public class RateManager
 		
 		float minRowWidth = paragraph.job.width * 0.8f;
 		
-		float rowWidth = paragraph.job.indent; //bo pierwszy wiersz zaczyna sie wcieciem;
-		
-		for(Label glyph : paragraph.glyphs)
-		{
-			if( glyph.newLine )
+		float rowWidth = -1;
+				
+		for(int i = paragraph.glyphs.size - 1; i >= 0; i--)
+		{			
+			if( paragraph.glyphs.get(i).newLine && rowWidth == -1 )
 			{
+				rowWidth = paragraph.glyphs.get(i-1).getX() + paragraph.glyphs.get(i-1).getWidth();
+			}
+			else if(paragraph.glyphs.get(i).newLine || i == 0 )
+			{
+				rowWidth -= paragraph.glyphs.get(i).getX();
+				
+				if(i == 0) rowWidth += paragraph.job.indent;
+				
 				if( rowWidth < minRowWidth )
 				{
 					count++;
 				}
 				
-				rowWidth = 0;
+				if(i != 0) rowWidth = paragraph.glyphs.get(i-1).getX() + paragraph.glyphs.get(i-1).getWidth();
 			}
-			
-			rowWidth += glyph.getWidth();
 		}
 		
-		//criterias.add( new Criterium("Nieregularna prawa strona g³êbiej ni¿ w 20% szerokoœci sk³adu", count, 0) );
+		criterias.add( new Criterium("Nieregularna prawa strona g³êbiej ni¿ w 20% szerokoœci sk³adu", count, 2) );
 	}
 	
 	private void checkLastRow(Paragraph paragraph)
 	{
 		int count = 0;
 		
-		float rowWidth = 0;
+		float rowWidth = paragraph.glyphs.peek().getX() + paragraph.glyphs.peek().getWidth();
 		
 		for(int i = paragraph.glyphs.size - 1; i >= 0; i--)
 		{
-			rowWidth += paragraph.glyphs.get(i).getWidth();
-			
 			if( paragraph.glyphs.get(i).newLine )
 			{
-				if( rowWidth > paragraph.job.width - paragraph.job.indent )
+				rowWidth -= paragraph.glyphs.get(i+1).getX();
+				
+				if( paragraph.job.width - rowWidth < paragraph.job.indent )
 				{
 					count++;
 				}
@@ -542,16 +548,18 @@ public class RateManager
 			}
 		}
 		
-		criterias.add( new Criterium("Ostatni wiersz z³o¿ony na pe³en format", count, 1) );
+		criterias.add( new Criterium("Ostatni wiersz z³o¿ony na pe³en format", count, 2) );
 	}
 	
 	private void checkHyphenCount(Paragraph paragraph)
 	{
 		int count = 0;
 		
+		int aCount = (int) ( paragraph.job.width / (new Label("a", paragraph.glyphs.first().getStyle())).getWidth()); 
+		System.out.println(aCount);
 		//liczba literek a 
 		
-		criterias.add( new Criterium("B³êdna iloœæ przeniesieñ pod rz¹d", count, 0) );
+		criterias.add( new Criterium("B³êdna iloœæ przeniesieñ pod rz¹d", count, 5) );
 	}
 	
 	private void checkHyphenAfter(Paragraph paragraph) 
@@ -589,7 +597,7 @@ public class RateManager
 			}
 		}
 		
-		criterias.add( new Criterium("Przeniesione mniej ni¿ trzy znaki", count, 1) );
+		criterias.add( new Criterium("Przeniesione mniej ni¿ trzy znaki", count, 5) );
 	}
 	
 	private void checkHyphenBefore(Paragraph paragraph) 
@@ -627,6 +635,6 @@ public class RateManager
 			}
 		}
 		
-		criterias.add( new Criterium("Mniej ni¿ dwa znaki przed przeniesieniem", count, 1) );
+		criterias.add( new Criterium("Mniej ni¿ dwa znaki przed przeniesieniem", count, 5) );
 	}
 }

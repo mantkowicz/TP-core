@@ -192,11 +192,14 @@ public class GameScreen extends BaseScreen
 	protected void step()
 	{		
 		if( phase == ScreenPhase.PLAYING )
-		{		
+		{			
 			paragraph.addToStage();
-			
+						
 			if( paragraph.longPressedId != -1 )
 			{
+				indicatorStart.setGrid(paragraph.glyphs);
+				indicatorEnd.setGrid(paragraph.glyphs);
+				
 				indicatorStart.setCurrentId( paragraph.getWordStart() );
 				indicatorEnd.setCurrentId( paragraph.getWordEnd() );
 				
@@ -320,7 +323,7 @@ public class GameScreen extends BaseScreen
 		}
 		else if( phase == ScreenPhase.FINISHED )
 		{ 
-			log(manager.getResponse());
+//			log(manager.getResponse());
 			manager.resetState();
 			
 			nextScreen = new ResultScreen(game);
@@ -414,7 +417,7 @@ public class GameScreen extends BaseScreen
 		interlineLabel = new Label("Wysokoœæ interlinii ", game.skin, "small");
 		interlineLabel.setPosition(interlineMinusButton.getX() + (225 - interlineLabel.getWidth())/2f, -370);
 		
-		interlineValueLabel = new Label(paragraph.job.lineHeight+"px", game.skin, "small");
+		interlineValueLabel = new Label(((paragraph.job.lineHeight - job.font_size) * 2)+"px", game.skin, "small");
 		interlineValueLabel.setPosition(interlineMinusButton.getX() + (225 - interlineValueLabel.getWidth())/2f, -300);
 		
 		fontSizeLabel = new Label("Stopieñ pisma ", game.skin, "small");
@@ -865,7 +868,11 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			paragraph.job.indent++;
+			if( paragraph.glyphs.size > 0 )
+			{
+				paragraph.job.indent++;
+				paragraph.glyphs.first().xAdvance++;
+			}
 			
 			indentValueLabel.setText(paragraph.job.indent+"px");
 			indentValueLabel.setPosition(indentMinusButton.getX() + (225 - indentValueLabel.getWidth())/2f, -300);
@@ -876,7 +883,11 @@ public class GameScreen extends BaseScreen
 	{
 		public void clicked(InputEvent event, float x, float y)
 		{
-			if( paragraph.job.indent > 0 ) paragraph.job.indent--;
+			if( paragraph.glyphs.size > 0 && paragraph.job.indent > 0 ) 
+			{
+				paragraph.job.indent--;
+				paragraph.glyphs.first().xAdvance--;
+			}
 			
 			indentValueLabel.setText(paragraph.job.indent+"px");
 			indentValueLabel.setPosition(indentMinusButton.getX() + (225 - indentValueLabel.getWidth())/2f, -300);
@@ -889,7 +900,7 @@ public class GameScreen extends BaseScreen
 		{
 			paragraph.job.lineHeight++;
 			
-			interlineValueLabel.setText(paragraph.job.lineHeight+"px");
+			interlineValueLabel.setText(((paragraph.job.lineHeight - paragraph.job.font_size) * 2)+"px");
 			interlineValueLabel.setPosition(interlineMinusButton.getX() + (225 - interlineValueLabel.getWidth())/2f, -300);
 		}
 	};
@@ -900,7 +911,7 @@ public class GameScreen extends BaseScreen
 		{
 			if( paragraph.job.lineHeight >= paragraph.job.font_size ) paragraph.job.lineHeight--;
 			
-			interlineValueLabel.setText(paragraph.job.lineHeight+"px");
+			interlineValueLabel.setText(((paragraph.job.lineHeight - paragraph.job.font_size) * 2)+"px");
 			interlineValueLabel.setPosition(interlineMinusButton.getX() + (225 - interlineValueLabel.getWidth())/2f, -300);
 		}
 	};
@@ -936,6 +947,9 @@ public class GameScreen extends BaseScreen
 			paragraph.increaseFontSize();
 			fontSizeValueLabel.setText(paragraph.job.font_size+"px");
 			fontSizeValueLabel.setPosition(fontSizeMinusButton.getX() + (225 - fontSizeValueLabel.getWidth())/2f, -300);
+			
+			interlineValueLabel.setText(((paragraph.job.lineHeight - paragraph.job.font_size) * 2)+"px");
+			interlineValueLabel.setPosition(interlineMinusButton.getX() + (225 - interlineValueLabel.getWidth())/2f, -300);
 		}
 	};
 	
@@ -946,6 +960,9 @@ public class GameScreen extends BaseScreen
 			paragraph.decreaseFontSize();
 			fontSizeValueLabel.setText(paragraph.job.font_size+"px");
 			fontSizeValueLabel.setPosition(fontSizeMinusButton.getX() + (225 - fontSizeValueLabel.getWidth())/2f, -300);
+			
+			interlineValueLabel.setText(((paragraph.job.lineHeight - paragraph.job.font_size) * 2)+"px");
+			interlineValueLabel.setPosition(interlineMinusButton.getX() + (225 - interlineValueLabel.getWidth())/2f, -300);
 		}
 	};
 		
